@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "TypeSharpGenLauncher": {
+      "commandName": "Project",
+      "commandLineArgs": "\"C:\\Users\\Chally\\Projects\\TypeSharpGen\\TestApplication\" -b \"C:\\Users\\Chally\\Projects\\TypeSharpGen\\TestApplication\\bin\\Debug\\net5.0\""
+    }
+  }
+}
