@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TypeSharpGenLauncher.Core.Model;
 
 namespace TypeSharpGenLauncher.Core.Synthesiser
@@ -24,7 +21,7 @@ namespace TypeSharpGenLauncher.Core.Synthesiser
         private bool ContainsDependentType(DeclarationFile file)
         {
             var fileTypes = file.Types.Select(type => type.Type);
-            return Types.SelectMany(type => type.DependentTypes).Intersect(fileTypes).Count() > 0;
+            return Types.SelectMany(type => type.DependentTypes).Intersect(fileTypes).Any();
         }
 
     }
