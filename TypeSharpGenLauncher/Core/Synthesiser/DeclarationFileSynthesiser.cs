@@ -5,6 +5,7 @@ using System.Linq;
 using EphemeralEx.Injection;
 using TypeSharpGen.Builder;
 using TypeSharpGenLauncher.Configuration;
+using TypeSharpGenLauncher.Core.Builder;
 using TypeSharpGenLauncher.Core.Model;
 
 
@@ -20,11 +21,16 @@ namespace TypeSharpGenLauncher.Core.Synthesiser
     {
         private readonly IProjectFolders _projectFolders;
         private readonly IEmisionEndpoint _emmisionEndpoint;
+        private readonly ITypeScriptBuiltInTypes _typeScriptBuiltInTypes;
 
-        public DeclarationFileSynthesiser(IProjectFolders projectFolders, IEmisionEndpoint emmisionEndpoint)
-        {
+        public DeclarationFileSynthesiser(
+            IProjectFolders projectFolders,
+            IEmisionEndpoint emmisionEndpoint,
+            ITypeScriptBuiltInTypes typeScriptBuiltInTypes
+        ) {
             _projectFolders = projectFolders;
             _emmisionEndpoint = emmisionEndpoint;
+            _typeScriptBuiltInTypes = typeScriptBuiltInTypes;
         }
 
         public void Synthesise(IEnumerable<DeclarationFile> declarationFiles)
@@ -57,10 +63,15 @@ namespace TypeSharpGenLauncher.Core.Synthesiser
             yield return $"export {typeModel.Symbol.ToText()} {typeModel.Name} {{";
             foreach (var property in typeModel.Properties)
             {
-                yield return $"    {property.Name}: {property.PropertyType.Name};";
+                yield return $"    {property.Name}: {SynthesisePropertyType(property.PropertyType)};";
             }
             yield return "}";
             yield return string.Empty;
         }
+
+        private string SynthesisePropertyType(Type type)
+            => _typeScriptBuiltInTypes.BuiltInTypeSymbols.TryGetValue(type, out string? value)
+                ? value
+                : type.Name;    
     }
 }
