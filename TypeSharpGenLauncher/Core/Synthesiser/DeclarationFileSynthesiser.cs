@@ -1,9 +1,12 @@
-﻿using EphemeralEx.Injection;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+
+using EphemeralEx.Injection;
+using TypeSharpGen.Builder;
 using TypeSharpGenLauncher.Configuration;
 using TypeSharpGenLauncher.Core.Model;
+
 
 namespace TypeSharpGenLauncher.Core.Synthesiser
 {
@@ -51,7 +54,7 @@ namespace TypeSharpGenLauncher.Core.Synthesiser
 
         private IEnumerable<string> SynthesiseClassParts(ITypeModel typeModel)
         {
-            yield return $"export {typeModel.Symbol} {typeModel.Name} {{";
+            yield return $"export {typeModel.Symbol.ToText()} {typeModel.Name} {{";
             foreach (var property in typeModel.Properties)
             {
                 yield return $"    {property.Name}: {property.PropertyType.Name};";

@@ -11,6 +11,12 @@ namespace TypeSharpGen.Builder
         Interface
     }
 
+    public static class SymbolExtensions
+    {
+        static public string ToText(this Symbol symbol) 
+            => Enum.GetName(symbol)!.ToLower();
+    }
+
     public interface ITypeDefinition
     {
         Symbol Symbol { get; }
