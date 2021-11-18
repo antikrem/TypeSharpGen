@@ -5,8 +5,7 @@ using System.Linq;
 using EphemeralEx.Injection;
 using TypeSharpGen.Builder;
 using TypeSharpGenLauncher.Configuration;
-using TypeSharpGenLauncher.Core.Builder;
-using TypeSharpGenLauncher.Core.Model;
+using TypeSharpGenLauncher.Core.Constructor;
 
 
 namespace TypeSharpGenLauncher.Core.Synthesiser

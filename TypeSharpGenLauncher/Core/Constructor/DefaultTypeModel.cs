@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using TypeSharpGen.Builder;
 
-namespace TypeSharpGenLauncher.Core.Model
+namespace TypeSharpGenLauncher.Core.Constructor
 {
     public class DefaultTypeModel : ITypeModel
     {

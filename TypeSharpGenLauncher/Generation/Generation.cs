@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TypeSharpGen.Builder;
 using TypeSharpGen.Specification;
-using TypeSharpGenLauncher.Core.Builder;
+using TypeSharpGenLauncher.Core.Constructor;
 using TypeSharpGenLauncher.Core.Synthesiser;
 using TypeSharpGenLauncher.Loading;
 
@@ -19,10 +19,10 @@ namespace TypeSharpGenLauncher.Generation
     public class Generation : IGeneration
     {
         private readonly ITypesLoader _typesLoader;
-        private readonly ITypeModelBuilder _typeModelBuilder;
+        private readonly ITypeModelConstructor _typeModelBuilder;
         private readonly IDeclarationFileSynthesiser _declarationFileSynthesiser;
 
-        public Generation(ITypesLoader typesLoader, ITypeModelBuilder typeModelBuilder, IDeclarationFileSynthesiser declarationFileSynthesiser)
+        public Generation(ITypesLoader typesLoader, ITypeModelConstructor typeModelBuilder, IDeclarationFileSynthesiser declarationFileSynthesiser)
         {
             _typesLoader = typesLoader;
             _typeModelBuilder = typeModelBuilder;
@@ -34,11 +34,11 @@ namespace TypeSharpGenLauncher.Generation
             var types = _typesLoader.AllTypes();
 
             var declarations = types
-                .Where(type => typeof(GenerationSpecification).IsAssignableFrom(type))
+                .Where(type => typeof(GenerationSpecification).IsAssignableFrom(type)) //TODO: Implements
                 .Where(type => typeof(GenerationSpecification) != type)
                 .SelectMany(GetTypeDefinitions);
 
-            var models = _typeModelBuilder.ResolveTypedModels(declarations);
+            var models = _typeModelBuilder.ConstructTypedModels(declarations);
 
             var declarationFiles = models.GroupBy(model => model.OutputLocation)
                 .Select(group => new DeclarationFile(group.Key, group));
@@ -51,6 +51,5 @@ namespace TypeSharpGenLauncher.Generation
             var spec = (GenerationSpecification)Activator.CreateInstance(specType);
             return spec.TypeDeclaractions();
         }
-
     }
 }

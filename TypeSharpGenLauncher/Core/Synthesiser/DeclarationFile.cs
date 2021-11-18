@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using TypeSharpGenLauncher.Core.Model;
+using TypeSharpGenLauncher.Core.Constructor;
 
 namespace TypeSharpGenLauncher.Core.Synthesiser
 {

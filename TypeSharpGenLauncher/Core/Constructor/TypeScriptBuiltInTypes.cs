@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using EphemeralEx.Injection;
 
 
-namespace TypeSharpGenLauncher.Core.Builder
+namespace TypeSharpGenLauncher.Core.Constructor
 {
     [Injectable]
     public interface ITypeScriptBuiltInTypes

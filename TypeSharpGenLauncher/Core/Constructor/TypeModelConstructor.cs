@@ -4,26 +4,25 @@ using System.Linq;
 using EphemeralEx.Injection;
 
 using TypeSharpGen.Builder;
-using TypeSharpGenLauncher.Core.Model;
 
-namespace TypeSharpGenLauncher.Core.Builder
+namespace TypeSharpGenLauncher.Core.Constructor
 {
     [Injectable]
-    public interface ITypeModelBuilder
+    public interface ITypeModelConstructor
     {
-        IEnumerable<ITypeModel> ResolveTypedModels(IEnumerable<ITypeDefinition> typeDefinition);
+        IEnumerable<ITypeModel> ConstructTypedModels(IEnumerable<ITypeDefinition> typeDefinition);
     }
 
-    public class TypeModelBuilder : ITypeModelBuilder
+    public class TypeModelConstructor : ITypeModelConstructor
     {
         private readonly ITypeScriptBuiltInTypes _typeScriptBuiltInTypes;
 
-        public TypeModelBuilder(ITypeScriptBuiltInTypes typeScriptBuiltInTypes)
+        public TypeModelConstructor(ITypeScriptBuiltInTypes typeScriptBuiltInTypes)
         {
             _typeScriptBuiltInTypes = typeScriptBuiltInTypes;
         }
 
-        public IEnumerable<ITypeModel> ResolveTypedModels(IEnumerable<ITypeDefinition> typeModels)
+        public IEnumerable<ITypeModel> ConstructTypedModels(IEnumerable<ITypeDefinition> typeModels)
         {
             var resolvedModels = typeModels.Select(model => (ITypeModel)new TypeModel(model)).ToList();
             var newlyResolved = new List<ITypeModel>();

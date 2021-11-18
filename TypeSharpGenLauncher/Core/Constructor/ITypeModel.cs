@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using TypeSharpGen.Builder;
 
-namespace TypeSharpGenLauncher.Core.Model
+namespace TypeSharpGenLauncher.Core.Constructor
 {
     public interface ITypeModel : ITypeDefinition
     {
