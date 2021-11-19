@@ -18,8 +18,7 @@ namespace TypeSharpGen.Builder
             return this;
         }
 
-        HashSet<PropertyInfo> _declaredProperties = new();
-        public IEnumerable<PropertyInfo> Properties => _declaredProperties;
+        HashSet<IPropertyDefinition> _declaredProperties = new();
 
         public TypeBuilder AddProperty(PropertyInfo propertyInfo)
         {
@@ -37,12 +36,18 @@ namespace TypeSharpGen.Builder
             return this;
         }
 
-        private void InnerAddProperty(PropertyInfo propertyInfo) => _declaredProperties.Add(propertyInfo);
+        private void InnerAddProperty(PropertyInfo propertyInfo)
+            => _declaredProperties.Add(new PropertyDefinition(propertyInfo));
 
-        private IEnumerable<PropertyInfo> AllProperties => Type.GetProperties();
+        private IEnumerable<PropertyInfo> AllProperties
+            => Type.GetProperties();
+
+        IEnumerable<IPropertyDefinition> ITypeDefinition.Properties
+            => _declaredProperties;
 
         private string _outputLocation = Location;
         public string OutputLocation => _outputLocation;
+
 
         public ITypeDefinition EmitTo(string location)
         {

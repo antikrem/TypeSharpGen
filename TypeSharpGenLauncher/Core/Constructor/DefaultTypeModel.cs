@@ -21,11 +21,11 @@ namespace TypeSharpGenLauncher.Core.Constructor
         public Type Type => _type;
         public string Name => _type.Name;
 
-        public IEnumerable<PropertyInfo> Properties => _type.GetProperties();
+        public IEnumerable<IPropertyDefinition> Properties => _type.GetProperties().Select(property => new PropertyDefinition(property));
 
         public string OutputLocation => _parent.OutputLocation;
 
-        public IEnumerable<Type> DependentTypes => Properties.Select(property => property.PropertyType);
+        public IEnumerable<Type> DependentTypes => Properties.Select(property => property.Type);
 
     }
 }

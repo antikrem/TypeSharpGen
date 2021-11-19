@@ -19,10 +19,10 @@ namespace TypeSharpGenLauncher.Core.Constructor
         public Type Type => _innerTypeModel.Type;
         public string Name => _innerTypeModel.Name;
 
-        public IEnumerable<PropertyInfo> Properties => _innerTypeModel.Properties;
+        public IEnumerable<IPropertyDefinition> Properties => _innerTypeModel.Properties;
 
         public string OutputLocation => _innerTypeModel.OutputLocation;
 
-        public IEnumerable<Type> DependentTypes => Properties.Select(property => property.PropertyType);
+        public IEnumerable<Type> DependentTypes => Properties.Select(property => property.Type);
     }
 }

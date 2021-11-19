@@ -62,7 +62,7 @@ namespace TypeSharpGenLauncher.Core.Synthesiser
             yield return $"export {typeModel.Symbol.ToText()} {typeModel.Name} {{";
             foreach (var property in typeModel.Properties)
             {
-                yield return $"    {property.Name}: {SynthesisePropertyType(property.PropertyType)};";
+                yield return $"    {property.Name}: {SynthesisePropertyType(property.Type)};";
             }
             yield return "}";
             yield return string.Empty;
