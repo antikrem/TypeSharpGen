@@ -16,7 +16,13 @@ namespace TestApplication.Specifications
         {
             yield return DeclareInterface(typeof(TestModel))
                 .AddProperty("Name")
-                .AddProperty("Child");
+                .AddProperty("Child")
+                .AddProperty("Child2")
+                .AddProperty("Dependent");
+
+            yield return DeclareInterface(typeof(DefinedTestSubModel))
+                .WithName("AliasedDefinedTestsSubModel")
+                .AddProperty("Value2");
         }
     }
 }
