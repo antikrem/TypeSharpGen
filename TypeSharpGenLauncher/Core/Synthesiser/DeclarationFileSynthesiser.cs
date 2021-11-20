@@ -13,7 +13,7 @@ namespace TypeSharpGenLauncher.Core.Synthesiser
     [Injectable]
     public interface IDeclarationFileSynthesiser
     {
-        void Synthesise(IEnumerable<DeclarationFile> declarationFiles);
+        void Synthesise(DeclarationFile declarationFile, IDictionary<Type, ITypeModel> typeModelLookUp);
     }
 
     public class DeclarationFileSynthesiser : IDeclarationFileSynthesiser
@@ -32,23 +32,23 @@ namespace TypeSharpGenLauncher.Core.Synthesiser
             _typeScriptBuiltInTypes = typeScriptBuiltInTypes;
         }
 
-        public void Synthesise(IEnumerable<DeclarationFile> declarationFiles)
+        public void Synthesise(DeclarationFile declarationFile, IDictionary<Type, ITypeModel> typeModelLookUp)
         {
-            foreach (var file in declarationFiles)
-            {
-                var text = Synthesise(file);
-                _emmisionEndpoint.Write($"{_projectFolders.ProjectRoot.Path}\\{file.Location}", text);
-            }
+            var text = InnerSynthesise(declarationFile, typeModelLookUp);
+            _emmisionEndpoint.Write($"{_projectFolders.ProjectRoot.Path}\\{declarationFile.Location}", text);
         }
 
-        private string Synthesise(DeclarationFile declarationFile)
-            => string.Join(Environment.NewLine, SynthesiseParts(declarationFile).SelectMany(sequence => sequence)); // Flatten
+        private string InnerSynthesise(DeclarationFile declarationFile, IDictionary<Type, ITypeModel> typeModelLookUp)
+            => string.Join(
+                    Environment.NewLine, 
+                    SynthesiseParts(declarationFile, typeModelLookUp).SelectMany(sequence => sequence) // Flatten
+                );
 
-        private IEnumerable<IEnumerable<string>> SynthesiseParts(DeclarationFile declarationFile)
+        private IEnumerable<IEnumerable<string>> SynthesiseParts(DeclarationFile declarationFile, IDictionary<Type, ITypeModel> typeModelLookUp)
         {
             yield return SynthesiseHeaderParts();
             foreach (var type in declarationFile.Types)
-                yield return SynthesiseClassParts(type);
+                yield return SynthesiseClassParts(type, typeModelLookUp);
         }
 
         private IEnumerable<string> SynthesiseHeaderParts()
@@ -57,20 +57,20 @@ namespace TypeSharpGenLauncher.Core.Synthesiser
             yield return string.Empty;
         }
 
-        private IEnumerable<string> SynthesiseClassParts(ITypeModel typeModel)
+        private IEnumerable<string> SynthesiseClassParts(ITypeModel typeModel, IDictionary<Type, ITypeModel> typeModelLookUp)
         {
             yield return $"export {typeModel.Symbol.ToText()} {typeModel.Name} {{";
             foreach (var property in typeModel.Properties)
             {
-                yield return $"    {property.Name}: {SynthesisePropertyType(property.Type)};";
+                yield return $"    {property.Name}: {SynthesisePropertyType(property.Type, typeModelLookUp)};";
             }
             yield return "}";
             yield return string.Empty;
         }
 
-        private string SynthesisePropertyType(Type type)
+        private string SynthesisePropertyType(Type type, IDictionary<Type, ITypeModel> typeModelLookUp)
             => _typeScriptBuiltInTypes.BuiltInTypeSymbols.TryGetValue(type, out string? value)
                 ? value
-                : type.Name;    
+                : typeModelLookUp[type].Name;
     }
 }

@@ -20,13 +20,13 @@ namespace TypeSharpGenLauncher.Generation
     {
         private readonly ITypesLoader _typesLoader;
         private readonly ITypeModelConstructor _typeModelBuilder;
-        private readonly IDeclarationFileSynthesiser _declarationFileSynthesiser;
+        private readonly ISynthesiser _synthesiser;
 
-        public Generation(ITypesLoader typesLoader, ITypeModelConstructor typeModelBuilder, IDeclarationFileSynthesiser declarationFileSynthesiser)
+        public Generation(ITypesLoader typesLoader, ITypeModelConstructor typeModelBuilder, IDeclarationFileSynthesiser declarationFileSynthesiser, ISynthesiser synthesiser)
         {
             _typesLoader = typesLoader;
             _typeModelBuilder = typeModelBuilder;
-            _declarationFileSynthesiser = declarationFileSynthesiser;
+            _synthesiser = synthesiser;
         }
 
         public void Generate()
@@ -40,10 +40,7 @@ namespace TypeSharpGenLauncher.Generation
 
             var models = _typeModelBuilder.ConstructTypedModels(declarations);
 
-            var declarationFiles = models.GroupBy(model => model.OutputLocation)
-                .Select(group => new DeclarationFile(group.Key, group));
-
-            _declarationFileSynthesiser.Synthesise(declarationFiles);
+            _synthesiser.SynthesisAndWriteTypes(models);
         }
 
         private IEnumerable<ITypeDefinition> GetTypeDefinitions(Type specType)
