@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using TypeSharpGenLauncher.Core.Constructor;
 
@@ -9,20 +10,10 @@ namespace TypeSharpGenLauncher.Core.Synthesiser
         IEnumerable<ITypeModel> Types
     )
     {
-        IEnumerable<DeclarationFile> ImportedFiles(ISet<DeclarationFile> files)
-        {
-            foreach (var file in files)
-            {
-                if (ContainsDependentType(file))
-                    yield return file;
-            }
-        }
-
-        private bool ContainsDependentType(DeclarationFile file)
-        {
-            var fileTypes = file.Types.Select(type => type.Type);
-            return Types.SelectMany(type => type.DependentTypes).Intersect(fileTypes).Any();
-        }
-
+        public IEnumerable<Type> DependentTypes 
+            => Types
+                .SelectMany(type => type.DependentTypes)
+                .Where(type => !Types.Select(type => type.Type).Contains(type))
+                .Distinct();
     }
 }

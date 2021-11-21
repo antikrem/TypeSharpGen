@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-
+using EphemeralEx.Extensions;
 using EphemeralEx.Injection;
 using TypeSharpGen.Builder;
 using TypeSharpGenLauncher.Configuration;
@@ -13,7 +14,7 @@ namespace TypeSharpGenLauncher.Core.Synthesiser
     [Injectable]
     public interface IDeclarationFileSynthesiser
     {
-        void Synthesise(DeclarationFile declarationFile, IDictionary<Type, ITypeModel> typeModelLookUp);
+        void Synthesise(DeclarationFile declarationFile, IDictionary<Type, ITypeModel> typeModelLookUp, Dictionary<Type, DeclarationFile> declarationFileLookup);
     }
 
     public class DeclarationFileSynthesiser : IDeclarationFileSynthesiser
@@ -26,36 +27,54 @@ namespace TypeSharpGenLauncher.Core.Synthesiser
             IProjectFolders projectFolders,
             IEmisionEndpoint emmisionEndpoint,
             ITypeScriptBuiltInTypes typeScriptBuiltInTypes
-        ) {
+        )
+        {
             _projectFolders = projectFolders;
             _emmisionEndpoint = emmisionEndpoint;
             _typeScriptBuiltInTypes = typeScriptBuiltInTypes;
         }
 
-        public void Synthesise(DeclarationFile declarationFile, IDictionary<Type, ITypeModel> typeModelLookUp)
+        public void Synthesise(DeclarationFile declarationFile, IDictionary<Type, ITypeModel> typeModelLookUp, Dictionary<Type, DeclarationFile> declarationFileLookup)
         {
-            var text = InnerSynthesise(declarationFile, typeModelLookUp);
+            var text = InnerSynthesise(declarationFile, typeModelLookUp, declarationFileLookup);
             _emmisionEndpoint.Write($"{_projectFolders.ProjectRoot.Path}\\{declarationFile.Location}", text);
         }
 
-        private string InnerSynthesise(DeclarationFile declarationFile, IDictionary<Type, ITypeModel> typeModelLookUp)
+        private string InnerSynthesise(DeclarationFile declarationFile, IDictionary<Type, ITypeModel> typeModelLookUp, Dictionary<Type, DeclarationFile> declarationFileLookup)
             => string.Join(
-                    Environment.NewLine, 
-                    SynthesiseParts(declarationFile, typeModelLookUp).SelectMany(sequence => sequence) // Flatten
+                    Environment.NewLine,
+                    SynthesiseParts(declarationFile, typeModelLookUp, declarationFileLookup).SelectMany(sequence => sequence) // Flatten
                 );
 
-        private IEnumerable<IEnumerable<string>> SynthesiseParts(DeclarationFile declarationFile, IDictionary<Type, ITypeModel> typeModelLookUp)
+        private IEnumerable<IEnumerable<string>> SynthesiseParts(DeclarationFile declarationFile, IDictionary<Type, ITypeModel> typeModelLookUp, Dictionary<Type, DeclarationFile> declarationFileLookup)
         {
-            yield return SynthesiseHeaderParts();
+            yield return SynthesiseHeaderParts(declarationFile, typeModelLookUp, declarationFileLookup);
             foreach (var type in declarationFile.Types)
                 yield return SynthesiseClassParts(type, typeModelLookUp);
         }
 
-        private IEnumerable<string> SynthesiseHeaderParts()
+        private IEnumerable<string> SynthesiseHeaderParts(DeclarationFile declarationFile, IDictionary<Type, ITypeModel> typeModelLookUp, Dictionary<Type, DeclarationFile> declarationFileLookup)
         {
             yield return "// This is an auto generated test";
+
+            var groupedImports = declarationFile.DependentTypes
+                .Select(type => typeModelLookUp.ContainsKey(type) ? typeModelLookUp[type] : null)
+                .NotNull()
+                .GroupBy(type => declarationFileLookup[type.Type]);
+
+            foreach (var importLine in groupedImports)
+                yield return SynthesiseImport(declarationFile, importLine.Key, importLine);
+
             yield return string.Empty;
         }
+
+        private string SynthesiseImport(DeclarationFile target, DeclarationFile importSource, IEnumerable<ITypeModel> typeModels)
+            => $"import {{ { string.Join(", ", typeModels.Select(type => type.Name)) } }} from \"{SynthesiseImportPath(target, importSource)}\";";
+
+        private string SynthesiseImportPath(DeclarationFile target, DeclarationFile importSource)
+            => Path.GetRelativePath(target.Location, importSource.Location)
+            .Substring(1)
+            .Replace("\\", "/");
 
         private IEnumerable<string> SynthesiseClassParts(ITypeModel typeModel, IDictionary<Type, ITypeModel> typeModelLookUp)
         {
