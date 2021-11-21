@@ -1,12 +1,9 @@
 ﻿using EphemeralEx.Injection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Hosting;
-using System;
-using System.Linq.Expressions;
 using TypeSharpGenLauncher.Configuration;
 using TypeSharpGenLauncher.Generation;
-using TypeSharpGenLauncher.Loading;
+
 
 namespace TypeSharpGenLauncher
 {
@@ -23,7 +20,5 @@ namespace TypeSharpGenLauncher
 
             genration.Generate();
         }
-
-
     }
 }
