@@ -14,7 +14,7 @@ namespace TypeSharpGenLauncher.Core.Synthesiser
     [Injectable]
     public interface IDeclarationFileSynthesiser
     {
-        void Synthesise(DeclarationFile declarationFile, IDictionary<Type, ITypeModel> typeModelLookUp, Dictionary<Type, DeclarationFile> declarationFileLookup);
+        void Synthesise(DeclarationFile declarationFile, IReadOnlyDictionary<Type, ITypeModel> typeModelLookUp, IReadOnlyDictionary<Type, DeclarationFile> declarationFileLookup);
     }
 
     public class DeclarationFileSynthesiser : IDeclarationFileSynthesiser
@@ -34,26 +34,26 @@ namespace TypeSharpGenLauncher.Core.Synthesiser
             _typeScriptBuiltInTypes = typeScriptBuiltInTypes;
         }
 
-        public void Synthesise(DeclarationFile declarationFile, IDictionary<Type, ITypeModel> typeModelLookUp, Dictionary<Type, DeclarationFile> declarationFileLookup)
+        public void Synthesise(DeclarationFile declarationFile, IReadOnlyDictionary<Type, ITypeModel> typeModelLookUp, IReadOnlyDictionary<Type, DeclarationFile> declarationFileLookup)
         {
             var text = InnerSynthesise(declarationFile, typeModelLookUp, declarationFileLookup);
             _emmisionEndpoint.Write($"{_projectFolders.ProjectRoot.Path}\\{declarationFile.Location}", text);
         }
 
-        private string InnerSynthesise(DeclarationFile declarationFile, IDictionary<Type, ITypeModel> typeModelLookUp, Dictionary<Type, DeclarationFile> declarationFileLookup)
+        private string InnerSynthesise(DeclarationFile declarationFile, IReadOnlyDictionary<Type, ITypeModel> typeModelLookUp, IReadOnlyDictionary<Type, DeclarationFile> declarationFileLookup)
             => string.Join(
                     Environment.NewLine,
                     SynthesiseParts(declarationFile, typeModelLookUp, declarationFileLookup).SelectMany(sequence => sequence) // Flatten
                 );
 
-        private IEnumerable<IEnumerable<string>> SynthesiseParts(DeclarationFile declarationFile, IDictionary<Type, ITypeModel> typeModelLookUp, Dictionary<Type, DeclarationFile> declarationFileLookup)
+        private IEnumerable<IEnumerable<string>> SynthesiseParts(DeclarationFile declarationFile, IReadOnlyDictionary<Type, ITypeModel> typeModelLookUp, IReadOnlyDictionary<Type, DeclarationFile> declarationFileLookup)
         {
             yield return SynthesiseHeaderParts(declarationFile, typeModelLookUp, declarationFileLookup);
             foreach (var type in declarationFile.Types)
                 yield return SynthesiseClassParts(type, typeModelLookUp);
         }
 
-        private IEnumerable<string> SynthesiseHeaderParts(DeclarationFile declarationFile, IDictionary<Type, ITypeModel> typeModelLookUp, Dictionary<Type, DeclarationFile> declarationFileLookup)
+        private IEnumerable<string> SynthesiseHeaderParts(DeclarationFile declarationFile, IReadOnlyDictionary<Type, ITypeModel> typeModelLookUp, IReadOnlyDictionary<Type, DeclarationFile> declarationFileLookup)
         {
             yield return "// This is an auto generated test";
 
@@ -76,7 +76,7 @@ namespace TypeSharpGenLauncher.Core.Synthesiser
             .Substring(1)
             .Replace("\\", "/");
 
-        private IEnumerable<string> SynthesiseClassParts(ITypeModel typeModel, IDictionary<Type, ITypeModel> typeModelLookUp)
+        private IEnumerable<string> SynthesiseClassParts(ITypeModel typeModel, IReadOnlyDictionary<Type, ITypeModel> typeModelLookUp)
         {
             yield return $"export {typeModel.Symbol.ToText()} {typeModel.Name} {{";
             foreach (var property in typeModel.Properties)
@@ -87,7 +87,7 @@ namespace TypeSharpGenLauncher.Core.Synthesiser
             yield return string.Empty;
         }
 
-        private string SynthesisePropertyType(Type type, IDictionary<Type, ITypeModel> typeModelLookUp)
+        private string SynthesisePropertyType(Type type, IReadOnlyDictionary<Type, ITypeModel> typeModelLookUp)
             => _typeScriptBuiltInTypes.BuiltInTypeSymbols.TryGetValue(type, out string? value)
                 ? value
                 : typeModelLookUp[type].Name;
