@@ -6,9 +6,8 @@
 
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>typesharpgenerate</ToolCommandName>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 
-    <Version>0.0.5</Version>
+    <Version>0.0.6</Version>
     <Company>Ephemeral Softworks</Company>
     <Authors>Chally</Authors>
     <Company>Ephemeral Softworks</Company>
