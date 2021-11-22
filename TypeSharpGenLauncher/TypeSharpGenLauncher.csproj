@@ -8,7 +8,7 @@
     <ToolCommandName>typesharpgenerate</ToolCommandName>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 
-    <Version>0.0.3</Version>
+    <Version>0.0.4</Version>
     <Company>Ephemeral Softworks</Company>
     <Authors>Chally</Authors>
     <Company>Ephemeral Softworks</Company>
