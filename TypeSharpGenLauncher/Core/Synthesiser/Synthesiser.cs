@@ -1,7 +1,11 @@
-﻿using EphemeralEx.Injection;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+
+using EphemeralEx.Extensions;
+using EphemeralEx.Injection;
+
 using TypeSharpGenLauncher.Core.Constructor;
+
 
 namespace TypeSharpGenLauncher.Core.Synthesiser
 {
@@ -26,10 +30,14 @@ namespace TypeSharpGenLauncher.Core.Synthesiser
             var declarations = typeModels.GroupBy(model => model.OutputLocation)
                 .Select(group => new DeclarationFile(group.Key, group));
 
-            // Split these into a seperate packing step to move logic out of synthesis
-            var lookUp = typeModels.ToDictionary(model => model.Type, model => model); // TODO ex: index
+            // TODO: Split these into a seperate packing step to move logic out of synthesis
+            var lookUp = typeModels
+                .DistinctBy(model => model.Type)
+                .ToDictionary(model => model.Type, model => model); // TODO ex: index
 
-            var declarationFileLookup = typeModels.ToDictionary(
+            var declarationFileLookup = typeModels
+                .DistinctBy(model => model.Type)
+                .ToDictionary(
                     model => model.Type, 
                     model => declarations.Single(file => file.Types.Select(type => type.Type).Contains(model.Type))
                 );
