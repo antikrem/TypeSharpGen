@@ -9,7 +9,6 @@
     <PackageProjectUrl>https://github.com/antikrem/TypeSharpGen</PackageProjectUrl>
     <RepositoryUrl>https://github.com/antikrem/TypeSharpGen</RepositoryUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageType name="DotnetTool" />
   </PropertyGroup>
 
   <PropertyGroup>
