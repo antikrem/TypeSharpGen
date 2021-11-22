@@ -19,7 +19,9 @@ jobs:
       run: dotnet restore
     - name: Build project
       run: dotnet build --configuration Release --no-restore
-    - name: Pack nuget package
-      run: dotnet pack --configuration Release --no-build --output .
-    - name: Publish nuget package
+    - name: Pack TypeSharpGen package
+      run: dotnet pack TypeSharpGen --configuration Release --no-build --output .
+    - name: Pack TypeSharpGenLauncher package
+      run: dotnet pack TypeSharpGenLauncher --configuration Release --no-build --output .
+    - name: Publish nuget packages
       run: nuget push **\*.nupkg -NoSymbols -Source 'https://api.nuget.org/v3/index.json' -ApiKey ${{secrets.NUGET_API_KEY}} -NoSymbols
