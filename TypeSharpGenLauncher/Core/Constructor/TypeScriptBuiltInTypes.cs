@@ -39,6 +39,7 @@ namespace TypeSharpGenLauncher.Core.Constructor
             yield return (typeof(IEnumerable<>).MakeGenericType(type), $"{name}[]");
             yield return (typeof(IReadOnlyList<>).MakeGenericType(type), $"{name}[]");
             yield return (typeof(List<>).MakeGenericType(type), $"{name}[]");
+
         }
     }
 }

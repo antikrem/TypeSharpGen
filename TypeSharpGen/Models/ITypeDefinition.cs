@@ -26,6 +26,8 @@ namespace TypeSharpGen.Builder
 
         IEnumerable<IPropertyDefinition> Properties { get; }
 
+        IEnumerable<IMethodDefinition> Methods { get; }
+
         string OutputLocation { get; }
     }
 }

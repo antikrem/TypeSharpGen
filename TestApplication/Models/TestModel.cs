@@ -9,5 +9,13 @@
         public DefinedTestSubModel Child2 { get; set; }
 
         public DependentType Dependent { get; }
+
+        public DependentType Something(DefinedTestSubModel subModel)
+        {
+            return new DependentType()
+            {
+                Value = subModel.Value2
+            };
+        }
     }
 }

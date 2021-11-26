@@ -18,7 +18,8 @@ namespace TestApplication.Specifications
                 .AddProperty("Name")
                 .AddProperty("Child")
                 .AddProperty("Child2")
-                .AddProperty("Dependent");
+                .AddProperty("Dependent")
+                .AddMethod("Something");
 
             yield return DeclareInterface(typeof(DefinedTestSubModel))
                 .WithName("AliasedDefinedTestsSubModel")

@@ -21,8 +21,9 @@ namespace TypeSharpGenLauncher.Core.Constructor
 
         public IEnumerable<IPropertyDefinition> Properties => _innerTypeModel.Properties;
 
+        public IEnumerable<IMethodDefinition> Methods => _innerTypeModel.Methods;
+
         public string OutputLocation => _innerTypeModel.OutputLocation;
 
-        public IEnumerable<Type> DependentTypes => Properties.Select(property => property.Type);
     }
 }

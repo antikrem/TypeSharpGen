@@ -22,10 +22,9 @@ namespace TypeSharpGenLauncher.Core.Constructor
         public string Name => _type.Name;
 
         public IEnumerable<IPropertyDefinition> Properties => _type.GetProperties().Select(property => new PropertyDefinition(property));
+        
+        public IEnumerable<IMethodDefinition> Methods => Enumerable.Empty<IMethodDefinition>();
 
         public string OutputLocation => _parent.OutputLocation;
-
-        public IEnumerable<Type> DependentTypes => Properties.Select(property => property.Type);
-
     }
 }

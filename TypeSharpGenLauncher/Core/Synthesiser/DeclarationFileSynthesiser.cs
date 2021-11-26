@@ -79,13 +79,31 @@ namespace TypeSharpGenLauncher.Core.Synthesiser
         private IEnumerable<string> SynthesiseClassParts(ITypeModel typeModel, IReadOnlyDictionary<Type, ITypeModel> typeModelLookUp)
         {
             yield return $"export {typeModel.Symbol.ToText()} {typeModel.Name} {{";
+
             foreach (var property in typeModel.Properties)
+                yield return SynthesiseProperty(typeModelLookUp, property);
+
+            foreach (var method in typeModel.Methods)
             {
-                yield return $"    {property.Name}: {SynthesisePropertyType(property.Type, typeModelLookUp)};";
+                yield return string.Empty;
+                yield return SynthesiseMethod(typeModelLookUp, method);
             }
+
             yield return "}";
             yield return string.Empty;
         }
+
+        private string SynthesiseProperty(IReadOnlyDictionary<Type, ITypeModel> typeModelLookUp, IPropertyDefinition property)
+            => $"    {property.Name}: {SynthesisePropertyType(property.Type, typeModelLookUp)};";
+
+        private string SynthesiseMethod(IReadOnlyDictionary<Type, ITypeModel> typeModelLookUp, IMethodDefinition method)
+            => $"    {method.Name}({SynthesisePrarameters(typeModelLookUp, method)}): {SynthesisePropertyType(method.ReturnType, typeModelLookUp)};";
+
+        private string SynthesisePrarameters(IReadOnlyDictionary<Type, ITypeModel> typeModelLookUp, IMethodDefinition method)
+            => string.Join(',', method.Parameters.Select(parameter => SynthesisePropertyType(typeModelLookUp, parameter)));
+
+        private string SynthesisePropertyType(IReadOnlyDictionary<Type, ITypeModel> typeModelLookUp, IParameterDefinition parameter)
+            => $"{parameter.Name}: {SynthesisePropertyType(parameter.Type, typeModelLookUp)}";
 
         private string SynthesisePropertyType(Type type, IReadOnlyDictionary<Type, ITypeModel> typeModelLookUp)
             => _typeScriptBuiltInTypes.BuiltInTypeSymbols.TryGetValue(type, out string? value)
