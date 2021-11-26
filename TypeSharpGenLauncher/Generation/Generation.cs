@@ -1,12 +1,16 @@
-﻿using EphemeralEx.Injection;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+
+using EphemeralEx.Extensions;
+using EphemeralEx.Injection;
+
 using TypeSharpGen.Builder;
 using TypeSharpGen.Specification;
 using TypeSharpGenLauncher.Core.Constructor;
 using TypeSharpGenLauncher.Core.Synthesiser;
 using TypeSharpGenLauncher.Loading;
+
 
 namespace TypeSharpGenLauncher.Generation
 {
@@ -34,7 +38,7 @@ namespace TypeSharpGenLauncher.Generation
             var types = _typesLoader.AllTypes();
 
             var declarations = types
-                .Where(type => typeof(GenerationSpecification).IsAssignableFrom(type)) //TODO: Implements
+                .Where(type => type.Inherits<GenerationSpecification>())
                 .Where(type => typeof(GenerationSpecification) != type)
                 .SelectMany(GetTypeDefinitions);
 

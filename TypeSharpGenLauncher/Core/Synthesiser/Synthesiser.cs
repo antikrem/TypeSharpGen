@@ -33,7 +33,7 @@ namespace TypeSharpGenLauncher.Core.Synthesiser
             // TODO: Split these into a seperate packing step to move logic out of synthesis
             var lookUp = typeModels
                 .DistinctBy(model => model.Type)
-                .ToDictionary(model => model.Type, model => model); // TODO ex: index
+                .IndexBy(model => model.Type);
 
             var declarationFileLookup = typeModels
                 .DistinctBy(model => model.Type)

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
+using EphemeralEx.Extensions;
 using EphemeralEx.Injection;
 
 
@@ -21,7 +22,7 @@ namespace TypeSharpGenLauncher.Core.Constructor
         public IDictionary<Type, string> BuiltInTypeSymbols
             => InnerBuiltInTypeSymbols()
                 .SelectMany(builtIn => DerivedTypes(builtIn.Type, builtIn.Name))
-                .ToDictionary(builtIn => builtIn.Type, builtIn => builtIn.Name); //TODO: Compose
+                .Compose();
 
         public static IEnumerable<(Type Type, string Name)> InnerBuiltInTypeSymbols()
         {

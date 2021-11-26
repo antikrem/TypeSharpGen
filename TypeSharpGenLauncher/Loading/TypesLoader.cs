@@ -34,7 +34,7 @@ namespace TypeSharpGenLauncher.Loading
                 .SelectMany(directory => directory.ChildFiles)
                 .Where(file => file.Extension == ".dll") //TODO: pull file type check to extension in EphemeralEx
                 .Select(TryLoadAssemblyTypes)
-                .SelectMany(assembly => assembly); //TODO: Flatten
+                .Flatten();
 
         private IEnumerable<Type> TryLoadAssemblyTypes(EphemeralEx.FileSystem.File file)
         {

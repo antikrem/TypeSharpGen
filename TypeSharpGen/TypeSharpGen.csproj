@@ -17,7 +17,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="EphemeralEx" Version="1.0.20" />
+    <PackageReference Include="EphemeralEx" Version="1.0.21" />
   </ItemGroup>
 
 </Project>
