@@ -43,7 +43,7 @@ namespace TypeSharpGenLauncher.Core.Synthesiser
         private string InnerSynthesise(DeclarationFile declarationFile, IReadOnlyDictionary<Type, ITypeModel> typeModelLookUp, IReadOnlyDictionary<Type, DeclarationFile> declarationFileLookup)
             => string.Join(
                     Environment.NewLine,
-                    SynthesiseParts(declarationFile, typeModelLookUp, declarationFileLookup).SelectMany(sequence => sequence) // Flatten
+                    SynthesiseParts(declarationFile, typeModelLookUp, declarationFileLookup).Flatten()
                 );
 
         private IEnumerable<IEnumerable<string>> SynthesiseParts(DeclarationFile declarationFile, IReadOnlyDictionary<Type, ITypeModel> typeModelLookUp, IReadOnlyDictionary<Type, DeclarationFile> declarationFileLookup)

@@ -71,9 +71,9 @@ namespace TypeSharpGenLauncher.Loading
         {
             try
             {
-                return (Directory)IFile.Create($"{UserFolder}\\.nuget\\packages\\{assemblyName.Name}");
+                return Directory.Create($"{UserFolder}\\.nuget\\packages\\{assemblyName.Name}");
             }
-            catch (InvalidFileURL)
+            catch (InvalidFilePath)
             {
                 return null;
             }
@@ -83,9 +83,9 @@ namespace TypeSharpGenLauncher.Loading
         {
             try
             {
-                return (Directory)IFile.Create($"{ProgramFilesFolder}\\dotnet\\shared");
+                return Directory.Create($"{ProgramFilesFolder}\\dotnet\\shared");
             }
-            catch (InvalidFileURL)
+            catch (InvalidFilePath)
             {
                 return null;
             }
