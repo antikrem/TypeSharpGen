@@ -50,7 +50,9 @@ namespace TypeSharpGenLauncher.Generation
         private IEnumerable<ITypeDefinition> GetTypeDefinitions(Type specType)
         {
             var spec = (GenerationSpecification)Activator.CreateInstance(specType);
-            return spec.TypeDeclaractions();
+            return spec
+                .TypeDeclaractions()
+                .Select(declaration => new ShiftedTypeDefinition(declaration, spec.OutputRoot));
         }
     }
 }
