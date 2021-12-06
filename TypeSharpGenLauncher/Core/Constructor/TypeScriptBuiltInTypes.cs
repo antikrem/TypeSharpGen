@@ -26,6 +26,7 @@ namespace TypeSharpGenLauncher.Core.Constructor
 
         public static IEnumerable<(Type Type, string Name)> InnerBuiltInTypeSymbols()
         {
+            yield return (typeof(void), "void");
             yield return (typeof(string), "string");
             yield return (typeof(bool), "boolean");
             yield return (typeof(int), "number");
@@ -37,9 +38,12 @@ namespace TypeSharpGenLauncher.Core.Constructor
         {
             yield return (type, name);
             yield return (type.MakeArrayType(), $"{name}[]");
-            yield return (typeof(IEnumerable<>).MakeGenericType(type), $"{name}[]");
-            yield return (typeof(IReadOnlyList<>).MakeGenericType(type), $"{name}[]");
-            yield return (typeof(List<>).MakeGenericType(type), $"{name}[]");
+            if (type != typeof(void))
+            {
+                yield return (typeof(IEnumerable<>).MakeGenericType(type), $"{name}[]");
+                yield return (typeof(IReadOnlyList<>).MakeGenericType(type), $"{name}[]");
+                yield return (typeof(List<>).MakeGenericType(type), $"{name}[]");
+            }
 
         }
     }
