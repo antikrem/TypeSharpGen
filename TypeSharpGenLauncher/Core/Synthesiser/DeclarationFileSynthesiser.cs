@@ -20,24 +20,27 @@ namespace TypeSharpGenLauncher.Core.Synthesiser
     public class DeclarationFileSynthesiser : IDeclarationFileSynthesiser
     {
         private readonly IProjectFolders _projectFolders;
-        private readonly IEmisionEndpoint _emmisionEndpoint;
+        private readonly IEnumerable<IEmisionEndpoint> _emmisionEndpoints;
         private readonly ITypeScriptBuiltInTypes _typeScriptBuiltInTypes;
+        private readonly ITypeReducer _typeReducer;
 
         public DeclarationFileSynthesiser(
             IProjectFolders projectFolders,
-            IEmisionEndpoint emmisionEndpoint,
-            ITypeScriptBuiltInTypes typeScriptBuiltInTypes
+            IEnumerable<IEmisionEndpoint> emmisionEndpoints,
+            ITypeScriptBuiltInTypes typeScriptBuiltInTypes,
+            ITypeReducer typeReducer
         )
         {
             _projectFolders = projectFolders;
-            _emmisionEndpoint = emmisionEndpoint;
+            _emmisionEndpoints = emmisionEndpoints;
             _typeScriptBuiltInTypes = typeScriptBuiltInTypes;
+            _typeReducer = typeReducer;
         }
 
         public void Synthesise(DeclarationFile declarationFile, IReadOnlyDictionary<Type, ITypeModel> typeModelLookUp, IReadOnlyDictionary<Type, DeclarationFile> declarationFileLookup)
         {
             var text = InnerSynthesise(declarationFile, typeModelLookUp, declarationFileLookup);
-            _emmisionEndpoint.Write($"{_projectFolders.ProjectRoot.Path}\\{declarationFile.Location}", text);
+            _emmisionEndpoints.ForEach(endpoint => endpoint.Write($"{_projectFolders.ProjectRoot.Path}\\{declarationFile.Location}", text));
         }
 
         private string InnerSynthesise(DeclarationFile declarationFile, IReadOnlyDictionary<Type, ITypeModel> typeModelLookUp, IReadOnlyDictionary<Type, DeclarationFile> declarationFileLookup)
@@ -57,13 +60,16 @@ namespace TypeSharpGenLauncher.Core.Synthesiser
         {
             yield return "// This is an auto generated test";
 
-            var groupedImports = declarationFile.DependentTypes
+            var groupedImports = declarationFile
+                .DependentTypes
+                .Select(_typeReducer.Reduce)
                 .Select(type => typeModelLookUp.ContainsKey(type) ? typeModelLookUp[type] : null)
                 .NotNull()
                 .GroupBy(type => declarationFileLookup[type.Type]);
 
             foreach (var importLine in groupedImports)
-                yield return SynthesiseImport(declarationFile, importLine.Key, importLine);
+                if (declarationFile.Location != importLine.Key.Location)
+                    yield return SynthesiseImport(declarationFile, importLine.Key, importLine);
 
             yield return string.Empty;
         }
@@ -72,9 +78,9 @@ namespace TypeSharpGenLauncher.Core.Synthesiser
             => $"import {{ { string.Join(", ", typeModels.Select(type => type.Name)) } }} from \"{SynthesiseImportPath(target, importSource)}\";";
 
         private string SynthesiseImportPath(DeclarationFile target, DeclarationFile importSource)
-            => Path.GetRelativePath(target.Location, importSource.Location)
-            .Substring(1)
-            .Replace("\\", "/");
+            => Path.GetRelativePath(target.Location, importSource.Location.Split('.').First())
+                .Substring(1)
+                .Replace("\\", "/");
 
         private IEnumerable<string> SynthesiseClassParts(ITypeModel typeModel, IReadOnlyDictionary<Type, ITypeModel> typeModelLookUp)
         {
@@ -100,7 +106,7 @@ namespace TypeSharpGenLauncher.Core.Synthesiser
             => $"    {method.Name}({SynthesisePrarameters(typeModelLookUp, method)}): {SynthesisePropertyType(method.ReturnType, typeModelLookUp)};";
 
         private string SynthesisePrarameters(IReadOnlyDictionary<Type, ITypeModel> typeModelLookUp, IMethodDefinition method)
-            => string.Join(',', method.Parameters.Select(parameter => SynthesisePropertyType(typeModelLookUp, parameter)));
+            => string.Join(", ", method.Parameters.Select(parameter => SynthesisePropertyType(typeModelLookUp, parameter)));
 
         private string SynthesisePropertyType(IReadOnlyDictionary<Type, ITypeModel> typeModelLookUp, IParameterDefinition parameter)
             => $"{parameter.Name}: {SynthesisePropertyType(parameter.Type, typeModelLookUp)}";
@@ -108,6 +114,20 @@ namespace TypeSharpGenLauncher.Core.Synthesiser
         private string SynthesisePropertyType(Type type, IReadOnlyDictionary<Type, ITypeModel> typeModelLookUp)
             => _typeScriptBuiltInTypes.BuiltInTypeSymbols.TryGetValue(type, out string? value)
                 ? value
-                : typeModelLookUp[type].Name;
+                : SynthesiseDeclaredType(type, typeModelLookUp);
+
+        private string SynthesiseDeclaredType(Type type, IReadOnlyDictionary<Type, ITypeModel> typeModelLookUp)
+        {
+            var reducedType = _typeReducer.Reduce(type);
+            var reducedName = typeModelLookUp[reducedType].Name;
+
+            return IsIterableType(type)
+                ? $"{reducedName}[]"
+                : reducedName;
+        }
+
+        private bool IsIterableType(Type type) 
+            => type.IsGenericType && _typeReducer.IterableTypes.Contains(type.GetGenericTypeDefinition())
+                || type.IsArray;
     }
 }

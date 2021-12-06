@@ -4,6 +4,7 @@ using System.Linq;
 using EphemeralEx.Injection;
 
 using TypeSharpGen.Builder;
+using TypeSharpGenLauncher.Loading;
 
 namespace TypeSharpGenLauncher.Core.Constructor
 {
@@ -16,14 +17,19 @@ namespace TypeSharpGenLauncher.Core.Constructor
     public class TypeModelConstructor : ITypeModelConstructor
     {
         private readonly ITypeScriptBuiltInTypes _typeScriptBuiltInTypes;
+        private readonly ITypeReducer _typeReducer;
+        private readonly IAssemblyLoader _assemblyLoader;
 
-        public TypeModelConstructor(ITypeScriptBuiltInTypes typeScriptBuiltInTypes)
+        public TypeModelConstructor(ITypeScriptBuiltInTypes typeScriptBuiltInTypes, ITypeReducer typeReducer, IAssemblyLoader assemblyLoader)
         {
             _typeScriptBuiltInTypes = typeScriptBuiltInTypes;
+            _typeReducer = typeReducer;
+            _assemblyLoader = assemblyLoader;
         }
 
         public IEnumerable<ITypeModel> ConstructTypedModels(IEnumerable<ITypeDefinition> typeModels)
         {
+            using var context =_assemblyLoader.Context();
             var resolvedModels = typeModels.Select(model => (ITypeModel)new TypeModel(model)).ToList();
             var newlyResolved = new List<ITypeModel>();
 
@@ -46,6 +52,8 @@ namespace TypeSharpGenLauncher.Core.Constructor
         private IEnumerable<ITypeModel> CreateRequiredModelsForDependencies(ITypeModel model, ISet<Type> resolvedTypes)
             => model
                 .DependentTypes
+                .Select(dependency => _typeReducer.Reduce(dependency))
+                .Distinct()
                 .Where(dependency => !resolvedTypes.Contains(dependency))
                 .Where(dependency => !_typeScriptBuiltInTypes.BuiltInTypes.Contains(dependency))
                 .Select(dependency => new DefaultTypeModel(dependency, model));

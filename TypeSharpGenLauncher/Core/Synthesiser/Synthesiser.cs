@@ -27,7 +27,9 @@ namespace TypeSharpGenLauncher.Core.Synthesiser
 
         public void SynthesisAndWriteTypes(IEnumerable<ITypeModel> typeModels)
         {
-            var declarations = typeModels.GroupBy(model => model.OutputLocation)
+            var declarations = typeModels
+                .DistinctBy(model => model.Type)
+                .GroupBy(model => model.OutputLocation)
                 .Select(group => new DeclarationFile(group.Key, group));
 
             // TODO: Split these into a seperate packing step to move logic out of synthesis
@@ -45,6 +47,5 @@ namespace TypeSharpGenLauncher.Core.Synthesiser
             foreach (var declaration in declarations)
                 _declarationFileSynthesiser.Synthesise(declaration, lookUp, declarationFileLookup);
         }
-
     }
 }
