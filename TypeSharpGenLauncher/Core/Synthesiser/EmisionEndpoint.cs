@@ -1,9 +1,13 @@
-﻿using EphemeralEx.Injection;
-using System;
+﻿using System;
+using System.Text;
+
+using EphemeralEx.Injection;
+using EphemeralEx.FileSystem;
+
 
 namespace TypeSharpGenLauncher.Core.Synthesiser
 {
-    [Injectable]
+    [MultipleInjectable]
     public interface IEmisionEndpoint
     {
         void Write(string location, string body);
@@ -15,6 +19,14 @@ namespace TypeSharpGenLauncher.Core.Synthesiser
         {
             Console.WriteLine($"Writing to {location}:");
             Console.Write(body);
+        }
+    }
+
+    public class FileEndpoint : IEmisionEndpoint
+    {
+        public void Write(string location, string body)
+        {
+            File.CreateNew(location, Encoding.ASCII.GetBytes(body));
         }
     }
 }
