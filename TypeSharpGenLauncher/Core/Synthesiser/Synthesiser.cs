@@ -3,7 +3,7 @@ using System.Linq;
 
 using EphemeralEx.Extensions;
 using EphemeralEx.Injection;
-
+using TypeSharpGen.Builder;
 using TypeSharpGenLauncher.Core.Constructor;
 
 
@@ -13,7 +13,7 @@ namespace TypeSharpGenLauncher.Core.Synthesiser
     [Injectable]
     public interface ISynthesiser
     {
-        void SynthesisAndWriteTypes(IEnumerable<ITypeModel> typeModels);
+        void SynthesisAndWriteTypes(IEnumerable<ITypeDefinition> typeModels);
     }
 
     public class Synthesiser : ISynthesiser
@@ -25,7 +25,7 @@ namespace TypeSharpGenLauncher.Core.Synthesiser
             _declarationFileSynthesiser = declarationFileSynthesiser;
         }
 
-        public void SynthesisAndWriteTypes(IEnumerable<ITypeModel> typeModels)
+        public void SynthesisAndWriteTypes(IEnumerable<ITypeDefinition> typeModels)
         {
             var declarations = typeModels
                 .DistinctBy(model => model.Type)

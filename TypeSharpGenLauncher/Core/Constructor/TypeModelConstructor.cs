@@ -9,12 +9,12 @@ using TypeSharpGenLauncher.Loading;
 namespace TypeSharpGenLauncher.Core.Constructor
 {
     [Injectable]
-    public interface ITypeModelConstructor
+    public interface IDependentDefinitionMaterialisation
     {
-        IEnumerable<ITypeModel> ConstructTypedModels(IEnumerable<ITypeDefinition> typeDefinition);
+        IEnumerable<ITypeDefinition> MaterialiseWithDependencies(IEnumerable<ITypeDefinition> typeDefinition);
     }
 
-    public class TypeModelConstructor : ITypeModelConstructor
+    public class TypeModelConstructor : IDependentDefinitionMaterialisation
     {
         private readonly ITypeScriptBuiltInTypes _typeScriptBuiltInTypes;
         private readonly ITypeReducer _typeReducer;
@@ -27,35 +27,34 @@ namespace TypeSharpGenLauncher.Core.Constructor
             _assemblyLoader = assemblyLoader;
         }
 
-        public IEnumerable<ITypeModel> ConstructTypedModels(IEnumerable<ITypeDefinition> typeModels)
+        public IEnumerable<ITypeDefinition> MaterialiseWithDependencies(IEnumerable<ITypeDefinition> definitions)
         {
             using var context =_assemblyLoader.Context();
-            var resolvedModels = typeModels.Select(model => (ITypeModel)new TypeModel(model)).ToList();
-            var newlyResolved = new List<ITypeModel>();
+            var resolvedDefinition = definitions.ToList();
+            var newlyResolved = new List<ITypeDefinition>();
 
             do
             {
-                newlyResolved = ResolutionPass(resolvedModels).ToList();
-                resolvedModels.AddRange(newlyResolved);
+                newlyResolved = ResolutionPass(resolvedDefinition).ToList();
+                resolvedDefinition.AddRange(newlyResolved);
             }
             while (newlyResolved.Count > 0);
 
-            return resolvedModels;
+            return resolvedDefinition;
         }
 
-        private IEnumerable<ITypeModel> ResolutionPass(IReadOnlyList<ITypeModel> models)
+        private IEnumerable<ITypeDefinition> ResolutionPass(IReadOnlyList<ITypeDefinition> models)
         {
             var resolvedTypes = new HashSet<Type>(models.Select(model => model.Type));
             return models.SelectMany(model => CreateRequiredModelsForDependencies(model, resolvedTypes));
         }
 
-        private IEnumerable<ITypeModel> CreateRequiredModelsForDependencies(ITypeModel model, ISet<Type> resolvedTypes)
-            => model
-                .DependentTypes
+        private IEnumerable<ITypeDefinition> CreateRequiredModelsForDependencies(ITypeDefinition model, ISet<Type> resolvedTypes)
+            => model.DependentTypes()
                 .Select(dependency => _typeReducer.Reduce(dependency))
                 .Distinct()
                 .Where(dependency => !resolvedTypes.Contains(dependency))
                 .Where(dependency => !_typeScriptBuiltInTypes.BuiltInTypes.Contains(dependency))
-                .Select(dependency => new DefaultTypeModel(dependency, model));
+                .Select(dependency => new DefaultTypeDefinition(dependency, model));
     }
 }

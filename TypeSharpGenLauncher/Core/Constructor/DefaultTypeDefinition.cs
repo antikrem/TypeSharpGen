@@ -6,12 +6,12 @@ using TypeSharpGen.Builder;
 
 namespace TypeSharpGenLauncher.Core.Constructor
 {
-    public class DefaultTypeModel : ITypeModel
+    public class DefaultTypeDefinition : ITypeDefinition
     {
         private readonly Type _type;
         private readonly ITypeDefinition _parent;
 
-        public DefaultTypeModel(Type type, ITypeDefinition parent)
+        public DefaultTypeDefinition(Type type, ITypeDefinition parent)
         {
             _type = type;
             _parent = parent;

@@ -23,17 +23,24 @@ namespace TypeSharpGenLauncher.Generation
     public class Generation : IGeneration
     {
         private readonly ITypesLoader _typesLoader;
-        private readonly ITypeModelConstructor _typeModelBuilder;
+        private readonly IDependentDefinitionMaterialisation _dependentDefinitionMaterialisation;
         private readonly ISynthesiser _synthesiser;
 
-        public Generation(ITypesLoader typesLoader, ITypeModelConstructor typeModelBuilder, IDeclarationFileSynthesiser declarationFileSynthesiser, ISynthesiser synthesiser)
+        public Generation(ITypesLoader typesLoader, IDependentDefinitionMaterialisation dependentDefinitionMaterialisation, ISynthesiser synthesiser)
         {
             _typesLoader = typesLoader;
-            _typeModelBuilder = typeModelBuilder;
+            _dependentDefinitionMaterialisation = dependentDefinitionMaterialisation;
             _synthesiser = synthesiser;
         }
 
         public void Generate()
+        {
+            var definitions = GetAllDefinitions();
+
+            _synthesiser.SynthesisAndWriteTypes(definitions);
+        }
+
+        private IEnumerable<ITypeDefinition> GetAllDefinitions()
         {
             var types = _typesLoader.AllTypes();
 
@@ -42,9 +49,7 @@ namespace TypeSharpGenLauncher.Generation
                 .Where(type => typeof(GenerationSpecification) != type)
                 .SelectMany(GetTypeDefinitions);
 
-            var models = _typeModelBuilder.ConstructTypedModels(declarations);
-
-            _synthesiser.SynthesisAndWriteTypes(models);
+            return _dependentDefinitionMaterialisation.MaterialiseWithDependencies(declarations);
         }
 
         private IEnumerable<ITypeDefinition> GetTypeDefinitions(Type specType)
