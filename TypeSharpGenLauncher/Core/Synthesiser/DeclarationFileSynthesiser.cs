@@ -62,7 +62,7 @@ namespace TypeSharpGenLauncher.Core.Synthesiser
 
             var groupedImports = declarationFile
                 .CalculateDependentTypes
-                .Select(_typeReducer.Reduce)
+                .SelectMany(_typeReducer.Reduce)
                 .Select(type => typeModelLookUp.ContainsKey(type) ? typeModelLookUp[type] : null)
                 .NotNull()
                 .GroupBy(type => declarationFileLookup[type.Type]);
@@ -112,14 +112,12 @@ namespace TypeSharpGenLauncher.Core.Synthesiser
             => $"{parameter.Name}: {SynthesisePropertyType(parameter.Type, typeModelLookUp)}";
 
         private string SynthesisePropertyType(Type type, IReadOnlyDictionary<Type, ITypeDefinition> typeModelLookUp)
-            => _typeScriptBuiltInTypes.BuiltInTypeSymbols.TryGetValue(type, out string? value)
-                ? value
-                : SynthesiseDeclaredType(type, typeModelLookUp);
-
-        private string SynthesiseDeclaredType(Type type, IReadOnlyDictionary<Type, ITypeDefinition> typeModelLookUp)
         {
-            var reducedType = _typeReducer.Reduce(type);
-            var reducedName = typeModelLookUp[reducedType].Name;
+            var reducedType = _typeReducer.Reduce(type).First();
+
+            var reducedName = _typeScriptBuiltInTypes.BuiltInTypeSymbols.TryGetValue(reducedType, out string? value)
+                ? value
+                : typeModelLookUp[reducedType].Name;
 
             return IsIterableType(type)
                 ? $"{reducedName}[]"

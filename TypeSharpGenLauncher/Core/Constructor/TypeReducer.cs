@@ -12,27 +12,36 @@ namespace TypeSharpGenLauncher.Core.Constructor
     public interface ITypeReducer
     {
         IEnumerable<Type> IterableTypes { get; }
+        IEnumerable<Type> DictionaryTypes { get; }
         IDictionary<Type, string> ComposedTypes(Type type, string name);
-        Type Reduce(Type type);
+        IEnumerable<Type> Reduce(Type type);
     }
 
     public class TypeReducer : ITypeReducer
     {
-        public Type Reduce(Type type)
+        public IEnumerable<Type> Reduce(Type type)
         {
             if (type.IsArray)
                 return Reduce(type.GetElementType()!);
-            else if (IsReducibleGeneric(type))
+            else if (IsReducibleListGeneric(type))
                 return Reduce(type.GetGenericArguments().First());
+            else if (IsReducibleDictionaryGeneric(type))
+                return type
+                    .GetGenericArguments()
+                    .Take(2)
+                    .SelectMany(argument => Reduce(argument));
 
-            return type;
+            return type.ToEnumerable();
         }
 
         public IDictionary<Type, string> ComposedTypes(Type type, string name)
             => DerivedTypes(type, name).Compose();
 
-        public IEnumerable<Type> IterableTypes 
-        { 
+        private bool IsReducibleListGeneric(Type type)
+            => type.IsGenericType && IterableTypes.Contains(type.GetGenericTypeDefinition());
+
+        public IEnumerable<Type> IterableTypes
+        {
             get
             {
                 yield return (typeof(IEnumerable<>));
@@ -41,8 +50,17 @@ namespace TypeSharpGenLauncher.Core.Constructor
             }
         }
 
-        private bool IsReducibleGeneric(Type type)
-            => type.IsGenericType && IterableTypes.Contains(type.GetGenericTypeDefinition());
+        private bool IsReducibleDictionaryGeneric(Type type)
+            => type.IsGenericType && DictionaryTypes.Contains(type.GetGenericTypeDefinition());
+
+        public IEnumerable<Type> DictionaryTypes
+        {
+            get
+            {
+                yield return (typeof(IReadOnlyDictionary<,>));
+                yield return (typeof(Dictionary<,>));
+            }
+        }
 
         private static IEnumerable<(Type Type, string Name)> DerivedTypes(Type type, string name)
         {
