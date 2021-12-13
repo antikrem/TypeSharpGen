@@ -11,36 +11,38 @@ namespace TypeSharpGenLauncher.Core.Constructor
     [Injectable]
     public interface ITypeReducer
     {
-        IEnumerable<Type> IterableTypes { get; }
-        IEnumerable<Type> DictionaryTypes { get; }
-        IDictionary<Type, string> ComposedTypes(Type type, string name);
-        IEnumerable<Type> Reduce(Type type);
+        bool IsReducibleListType(Type type);
+        bool IsReducibleDictionaryType(Type type);
+
+        IEnumerable<Type> Reduce(Type type, int by = int.MaxValue);
     }
 
     public class TypeReducer : ITypeReducer
     {
-        public IEnumerable<Type> Reduce(Type type)
+        public IEnumerable<Type> Reduce(Type type, int by)
         {
-            if (type.IsArray)
-                return Reduce(type.GetElementType()!);
-            else if (IsReducibleListGeneric(type))
-                return Reduce(type.GetGenericArguments().First());
-            else if (IsReducibleDictionaryGeneric(type))
+            if (by <= 0)
+                return type.ToEnumerable();
+            else if (type.IsArray)
+                return Reduce(type.GetElementType()!, by - 1);
+            else if (IsReducibleListType(type))
+                return Reduce(type.GetGenericArguments().First(), by - 1);
+            else if (IsReducibleDictionaryType(type))
                 return type
                     .GetGenericArguments()
                     .Take(2)
-                    .SelectMany(argument => Reduce(argument));
+                    .SelectMany(argument => Reduce(argument, by - 1));
 
             return type.ToEnumerable();
         }
 
-        public IDictionary<Type, string> ComposedTypes(Type type, string name)
-            => DerivedTypes(type, name).Compose();
+        public bool IsReducibleListType(Type type)
+            => type.IsArray || type.IsGenericType && IterableTypes.Contains(type.GetGenericTypeDefinition());
 
-        private bool IsReducibleListGeneric(Type type)
-            => type.IsGenericType && IterableTypes.Contains(type.GetGenericTypeDefinition());
+        public bool IsReducibleDictionaryType(Type type)
+            => type.IsGenericType && DictionaryTypes.Contains(type.GetGenericTypeDefinition());
 
-        public IEnumerable<Type> IterableTypes
+        private static IEnumerable<Type> IterableTypes
         {
             get
             {
@@ -50,10 +52,7 @@ namespace TypeSharpGenLauncher.Core.Constructor
             }
         }
 
-        private bool IsReducibleDictionaryGeneric(Type type)
-            => type.IsGenericType && DictionaryTypes.Contains(type.GetGenericTypeDefinition());
-
-        public IEnumerable<Type> DictionaryTypes
+        private static IEnumerable<Type> DictionaryTypes
         {
             get
             {
@@ -61,18 +60,5 @@ namespace TypeSharpGenLauncher.Core.Constructor
                 yield return (typeof(Dictionary<,>));
             }
         }
-
-        private static IEnumerable<(Type Type, string Name)> DerivedTypes(Type type, string name)
-        {
-            yield return (type, name);
-            yield return (type.MakeArrayType(), $"{name}[]");
-            if (type != typeof(void))
-            {
-                yield return (typeof(IEnumerable<>).MakeGenericType(type), $"{name}[]");
-                yield return (typeof(IReadOnlyList<>).MakeGenericType(type), $"{name}[]");
-                yield return (typeof(List<>).MakeGenericType(type), $"{name}[]");
-            }
-        }
-
     }
 }

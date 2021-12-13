@@ -119,13 +119,9 @@ namespace TypeSharpGenLauncher.Core.Synthesiser
                 ? value
                 : typeModelLookUp[reducedType].Name;
 
-            return IsIterableType(type)
+            return _typeReducer.IsReducibleListType(type)
                 ? $"{reducedName}[]"
                 : reducedName;
         }
-
-        private bool IsIterableType(Type type) 
-            => type.IsGenericType && _typeReducer.IterableTypes.Contains(type.GetGenericTypeDefinition())
-                || type.IsArray;
     }
 }
