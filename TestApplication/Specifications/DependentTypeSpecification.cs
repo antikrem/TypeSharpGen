@@ -14,7 +14,7 @@ namespace TestApplication.Specifications
 
         public override IEnumerable<ITypeDefinition> TypeDeclaractions()
         {
-            yield return DeclareInterface(typeof(DependentType))
+            yield return Declare(typeof(DependentType))
                 .AddProperty("DependentProperty");
         }
     }

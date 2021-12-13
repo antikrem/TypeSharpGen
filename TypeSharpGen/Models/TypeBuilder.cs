@@ -8,7 +8,7 @@ using EphemeralEx.Extensions;
 
 namespace TypeSharpGen.Builder
 {
-    public record TypeBuilder(Type Type, Symbol Symbol, string Location) : ITypeDefinition
+    public record TypeBuilder(Type Type, string Location) : ITypeDefinition
     {
         string? _name;
         public string Name => _name ?? Type.Name;

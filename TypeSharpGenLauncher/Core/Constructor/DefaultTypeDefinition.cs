@@ -17,7 +17,6 @@ namespace TypeSharpGenLauncher.Core.Constructor
             _parent = parent;
         }
 
-        public Symbol Symbol => Symbol.Interface;
         public Type Type => _type;
         public string Name => _type.Name;
 

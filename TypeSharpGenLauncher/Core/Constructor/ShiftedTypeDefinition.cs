@@ -19,8 +19,6 @@ namespace TypeSharpGenLauncher.Core.Constructor
             _root = root;
         }
 
-        public Symbol Symbol => _inner.Symbol;
-
         public Type Type => _inner.Type;
 
         public string Name => _inner.Name;

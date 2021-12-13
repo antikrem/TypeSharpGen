@@ -14,14 +14,14 @@ namespace TestApplication.Specifications
 
         public override IEnumerable<ITypeDefinition> TypeDeclaractions()
         {
-            yield return DeclareInterface(typeof(TestModel))
+            yield return Declare(typeof(TestModel))
                 .AddProperty("Name")
                 .AddProperty("Child")
                 .AddProperty("Child2")
                 .AddProperty("Dependent")
                 .AddMethod("Something");
 
-            yield return DeclareInterface(typeof(DefinedTestSubModel))
+            yield return Declare(typeof(DefinedTestSubModel))
                 .WithName("AliasedDefinedTestsSubModel")
                 .AddProperty("Value2");
         }
