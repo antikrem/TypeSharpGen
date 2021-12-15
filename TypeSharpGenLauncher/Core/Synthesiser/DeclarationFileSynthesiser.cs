@@ -68,7 +68,7 @@ namespace TypeSharpGenLauncher.Core.Synthesiser
             => $"import {{ { string.Join(", ", typeModels.Select(type => type.Symbol)) } }} from \"{SynthesiseImportPath(target, importSource)}\";";
 
         private string SynthesiseImportPath(DeclarationFile target, DeclarationFile importSource)
-            => Path.GetRelativePath(target.Location, importSource.Location.Split('.').First())
+            => Path.GetRelativePath(target.Location, importSource.Location)
                 .Substring(1)
                 .Replace("\\", "/");
 
