@@ -1,8 +1,12 @@
-﻿namespace TestApplication.Models
+﻿using System.Collections.Generic;
+
+namespace TestApplication.Models
 {
     class TestModel
     {
         public string Name { get; set; }
+
+        public IEnumerable<string> Name2 { get; set; }
 
         public TestSubModel Child { get; set; }
 
