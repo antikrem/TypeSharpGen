@@ -29,7 +29,7 @@ namespace TypeSharpGenLauncher.Core.Resolution
         public readonly IEmmitableSymbol _returnType;
         public readonly IEnumerable<ParameterModel> _parameters;
 
-        public string Symbol => $"{_name}({string.Join(" ,", _parameters.Select(paramter => paramter.Symbol))}): {_returnType.Symbol}";
+        public string Symbol => $"{_name}({string.Join(", ", _parameters.Select(paramter => paramter.Symbol))}): {_returnType.Symbol}";
 
         public IEnumerable<ITypeModel> Dependencies 
             => Sequence.From(
