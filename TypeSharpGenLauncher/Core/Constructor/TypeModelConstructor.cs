@@ -53,7 +53,7 @@ namespace TypeSharpGenLauncher.Core.Constructor
 
         private IEnumerable<ITypeDefinition> CreateRequiredModelsForDependencies(ITypeDefinition model, ISet<Type> resolvedTypes)
             => model.DependentTypes()
-                .SelectMany(_typeReducer.Reduce)
+                .SelectMany(type => _typeReducer.Reduce(type))
                 .Distinct()
                 .Where(dependency => !resolvedTypes.Contains(dependency))
                 .Where(dependency => !_typeScriptBuiltInTypes.BuiltInTypes.Contains(dependency))
