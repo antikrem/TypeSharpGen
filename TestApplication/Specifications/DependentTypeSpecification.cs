@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 using TypeSharpGen.Builder;
 using TypeSharpGen.Specification;
@@ -16,6 +17,7 @@ namespace TestApplication.Specifications
         {
             yield return Declare(typeof(DependentType))
                 .AddProperty("DependentProperty")
+                .AddMethod("Action", new OverideReturnType<Task<int>>())
                 .EmitTo("DependentType.d.ts");
         }
     }

@@ -14,11 +14,10 @@ namespace TestApplication.Models
 
         public DependentType Dependent { get; }
 
-        public DependentType Something(DefinedTestSubModel subModel)
+        public IEnumerable<DependentType> Something(DefinedTestSubModel subModel)
         {
-            return new DependentType()
-            {
-                Value = subModel.Value2
+            return new List<DependentType> {
+                new DependentType { Value = subModel.Value2 }
             };
         }
     }
