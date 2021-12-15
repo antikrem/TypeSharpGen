@@ -1,20 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using TypeSharpGen.Builder;
-using TypeSharpGenLauncher.Core.Constructor;
+
+using TypeSharpGenLauncher.Core.Resolution;
+
 
 namespace TypeSharpGenLauncher.Core.Synthesiser
 {
     public record DeclarationFile(
         string Location,
-        IEnumerable<ITypeDefinition> Types
+        IEnumerable<ITypeModel> Types
     )
     {
-        public IEnumerable<Type> CalculateDependentTypes 
+        public IEnumerable<ITypeModel> Dependencies 
             => Types
-                .SelectMany(type => type.DependentTypes())
-                .Where(type => !Types.Select(type => type.Type).Contains(type))
+                .SelectMany(type => type.DownstreamDependencies)
                 .Distinct();
+    }
+
+    public class DeclarationFileComparer : IEqualityComparer<DeclarationFile>
+    {
+        public bool Equals(DeclarationFile? x, DeclarationFile? y)
+        {
+            return x != null && y != null && x.Location == y.Location;
+        }
+
+        public int GetHashCode([DisallowNull] DeclarationFile obj)
+        {
+            return obj.Location.GetHashCode();
+        }
     }
 }

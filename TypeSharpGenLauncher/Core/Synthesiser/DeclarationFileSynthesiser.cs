@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+
 using EphemeralEx.Extensions;
 using EphemeralEx.Injection;
-using TypeSharpGen.Builder;
+
 using TypeSharpGenLauncher.Configuration;
-using TypeSharpGenLauncher.Core.Constructor;
+using TypeSharpGenLauncher.Core.Resolution;
 
 
 namespace TypeSharpGenLauncher.Core.Synthesiser
@@ -14,114 +15,79 @@ namespace TypeSharpGenLauncher.Core.Synthesiser
     [Injectable]
     public interface IDeclarationFileSynthesiser
     {
-        void Synthesise(DeclarationFile declarationFile, IReadOnlyDictionary<Type, ITypeDefinition> typeModelLookUp, IReadOnlyDictionary<Type, DeclarationFile> declarationFileLookup);
+        void Synthesise(DeclarationFile declarationFile, IEnumerable<DeclarationFile> declarationFiles);
     }
 
     public class DeclarationFileSynthesiser : IDeclarationFileSynthesiser
     {
         private readonly IProjectFolders _projectFolders;
         private readonly IEnumerable<IEmisionEndpoint> _emmisionEndpoints;
-        private readonly ITypeScriptBuiltInTypes _typeScriptBuiltInTypes;
-        private readonly ITypeReducer _typeReducer;
 
-        public DeclarationFileSynthesiser(
-            IProjectFolders projectFolders,
-            IEnumerable<IEmisionEndpoint> emmisionEndpoints,
-            ITypeScriptBuiltInTypes typeScriptBuiltInTypes,
-            ITypeReducer typeReducer
-        )
+        public DeclarationFileSynthesiser(IProjectFolders projectFolders, IEnumerable<IEmisionEndpoint> emmisionEndpoints)
         {
             _projectFolders = projectFolders;
             _emmisionEndpoints = emmisionEndpoints;
-            _typeScriptBuiltInTypes = typeScriptBuiltInTypes;
-            _typeReducer = typeReducer;
         }
 
-        public void Synthesise(DeclarationFile declarationFile, IReadOnlyDictionary<Type, ITypeDefinition> typeModelLookUp, IReadOnlyDictionary<Type, DeclarationFile> declarationFileLookup)
+        public void Synthesise(DeclarationFile declarationFile, IEnumerable<DeclarationFile> declarationFiles)
         {
-            var text = InnerSynthesise(declarationFile, typeModelLookUp, declarationFileLookup);
+            var text = InnerSynthesise(declarationFile, declarationFiles);
             _emmisionEndpoints.ForEach(endpoint => endpoint.Write($"{_projectFolders.ProjectRoot.Path}\\{declarationFile.Location}", text));
         }
 
-        private string InnerSynthesise(DeclarationFile declarationFile, IReadOnlyDictionary<Type, ITypeDefinition> typeModelLookUp, IReadOnlyDictionary<Type, DeclarationFile> declarationFileLookup)
+        private string InnerSynthesise(DeclarationFile declarationFile, IEnumerable<DeclarationFile> declarationFiles)
             => string.Join(
                     Environment.NewLine,
-                    SynthesiseParts(declarationFile, typeModelLookUp, declarationFileLookup).Flatten()
+                    SynthesiseParts(declarationFile, declarationFiles).Flatten()
                 );
 
-        private IEnumerable<IEnumerable<string>> SynthesiseParts(DeclarationFile declarationFile, IReadOnlyDictionary<Type, ITypeDefinition> typeModelLookUp, IReadOnlyDictionary<Type, DeclarationFile> declarationFileLookup)
+        private IEnumerable<IEnumerable<string>> SynthesiseParts(DeclarationFile declarationFile, IEnumerable<DeclarationFile> declarationFiles)
         {
-            yield return SynthesiseHeaderParts(declarationFile, typeModelLookUp, declarationFileLookup);
+            yield return SynthesiseHeaderParts(declarationFile, declarationFiles);
+            
             foreach (var type in declarationFile.Types)
-                yield return SynthesiseClassParts(type, typeModelLookUp);
+                yield return SynthesiseClassParts(type);
         }
 
-        private IEnumerable<string> SynthesiseHeaderParts(DeclarationFile declarationFile, IReadOnlyDictionary<Type, ITypeDefinition> typeModelLookUp, IReadOnlyDictionary<Type, DeclarationFile> declarationFileLookup)
+        private IEnumerable<string> SynthesiseHeaderParts(DeclarationFile declarationFile, IEnumerable<DeclarationFile> declarationFiles)
         {
             yield return "// This is an auto generated test";
 
             var groupedImports = declarationFile
-                .CalculateDependentTypes
-                .SelectMany(_typeReducer.Reduce)
-                .Select(type => typeModelLookUp.ContainsKey(type) ? typeModelLookUp[type] : null)
-                .NotNull()
-                .GroupBy(type => declarationFileLookup[type.Type]);
+                .Dependencies
+                .GroupBy(type => declarationFiles.Single(possibleFile => possibleFile.Types.Contains(type)), new DeclarationFileComparer())
+                .Where(import => import.Key.Location != declarationFile.Location);
 
-            foreach (var importLine in groupedImports)
-                if (declarationFile.Location != importLine.Key.Location)
-                    yield return SynthesiseImport(declarationFile, importLine.Key, importLine);
+            foreach (var import in groupedImports)
+                yield return SynthesiseImport(declarationFile, import.Key, import);
 
             yield return string.Empty;
         }
 
-        private string SynthesiseImport(DeclarationFile target, DeclarationFile importSource, IEnumerable<ITypeDefinition> typeModels)
-            => $"import {{ { string.Join(", ", typeModels.Select(type => type.Name)) } }} from \"{SynthesiseImportPath(target, importSource)}\";";
+        private string SynthesiseImport(DeclarationFile target, DeclarationFile importSource, IEnumerable<ITypeModel> typeModels)
+            => $"import {{ { string.Join(", ", typeModels.Select(type => type.Symbol)) } }} from \"{SynthesiseImportPath(target, importSource)}\";";
 
         private string SynthesiseImportPath(DeclarationFile target, DeclarationFile importSource)
             => Path.GetRelativePath(target.Location, importSource.Location.Split('.').First())
                 .Substring(1)
                 .Replace("\\", "/");
 
-        private IEnumerable<string> SynthesiseClassParts(ITypeDefinition typeModel, IReadOnlyDictionary<Type, ITypeDefinition> typeModelLookUp)
+        private IEnumerable<string> SynthesiseClassParts(ITypeModel model)
         {
-            yield return $"export {typeModel.Symbol.ToText()} {typeModel.Name} {{";
+            yield return $"export interface {model.Symbol} {{";
 
-            foreach (var property in typeModel.Properties)
-                yield return SynthesiseProperty(typeModelLookUp, property);
+            foreach (var property in model.Properties)
+                yield return $"    {property.Symbol};";
 
-            foreach (var method in typeModel.Methods)
+            foreach (var method in model.Methods)
             {
                 yield return string.Empty;
-                yield return SynthesiseMethod(typeModelLookUp, method);
+                yield return $"    {method.Symbol};";
             }
 
             yield return "}";
             yield return string.Empty;
         }
 
-        private string SynthesiseProperty(IReadOnlyDictionary<Type, ITypeDefinition> typeModelLookUp, IPropertyDefinition property)
-            => $"    {property.Name}: {SynthesisePropertyType(property.Type, typeModelLookUp)};";
-
-        private string SynthesiseMethod(IReadOnlyDictionary<Type, ITypeDefinition> typeModelLookUp, IMethodDefinition method)
-            => $"    {method.Name}({SynthesisePrarameters(typeModelLookUp, method)}): {SynthesisePropertyType(method.ReturnType, typeModelLookUp)};";
-
-        private string SynthesisePrarameters(IReadOnlyDictionary<Type, ITypeDefinition> typeModelLookUp, IMethodDefinition method)
-            => string.Join(", ", method.Parameters.Select(parameter => SynthesisePropertyType(typeModelLookUp, parameter)));
-
-        private string SynthesisePropertyType(IReadOnlyDictionary<Type, ITypeDefinition> typeModelLookUp, IParameterDefinition parameter)
-            => $"{parameter.Name}: {SynthesisePropertyType(parameter.Type, typeModelLookUp)}";
-
-        private string SynthesisePropertyType(Type type, IReadOnlyDictionary<Type, ITypeDefinition> typeModelLookUp)
-        {
-            var reducedType = _typeReducer.Reduce(type).First();
-
-            var reducedName = _typeScriptBuiltInTypes.BuiltInTypeSymbols.TryGetValue(reducedType, out string? value)
-                ? value
-                : typeModelLookUp[reducedType].Name;
-
-            return _typeReducer.IsReducibleListType(type)
-                ? $"{reducedName}[]"
-                : reducedName;
-        }
     }
 }

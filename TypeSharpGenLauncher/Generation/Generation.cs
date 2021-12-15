@@ -8,6 +8,7 @@ using EphemeralEx.Injection;
 using TypeSharpGen.Builder;
 using TypeSharpGen.Specification;
 using TypeSharpGenLauncher.Core.Constructor;
+using TypeSharpGenLauncher.Core.Resolution;
 using TypeSharpGenLauncher.Core.Synthesiser;
 using TypeSharpGenLauncher.Loading;
 
@@ -24,12 +25,18 @@ namespace TypeSharpGenLauncher.Generation
     {
         private readonly ITypesLoader _typesLoader;
         private readonly IDependentDefinitionMaterialisation _dependentDefinitionMaterialisation;
+        private readonly IModelResolver _modelResolver;
         private readonly ISynthesiser _synthesiser;
 
-        public Generation(ITypesLoader typesLoader, IDependentDefinitionMaterialisation dependentDefinitionMaterialisation, ISynthesiser synthesiser)
+        public Generation(
+            ITypesLoader typesLoader, 
+            IDependentDefinitionMaterialisation dependentDefinitionMaterialisation,
+            IModelResolver modelResolver,
+            ISynthesiser synthesiser)
         {
             _typesLoader = typesLoader;
             _dependentDefinitionMaterialisation = dependentDefinitionMaterialisation;
+            _modelResolver = modelResolver;
             _synthesiser = synthesiser;
         }
 
@@ -37,7 +44,9 @@ namespace TypeSharpGenLauncher.Generation
         {
             var definitions = GetAllDefinitions();
 
-            _synthesiser.SynthesisAndWriteTypes(definitions);
+            var refinement = _modelResolver.ResolveModels(definitions);
+
+            _synthesiser.SynthesisAndWriteTypes(refinement);
         }
 
         private IEnumerable<ITypeDefinition> GetAllDefinitions()

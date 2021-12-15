@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-using EphemeralEx.Extensions;
 using EphemeralEx.Injection;
-using TypeSharpGen.Builder;
-using TypeSharpGenLauncher.Core.Constructor;
+
+using TypeSharpGenLauncher.Core.Resolution;
 
 
 namespace TypeSharpGenLauncher.Core.Synthesiser
@@ -13,7 +12,7 @@ namespace TypeSharpGenLauncher.Core.Synthesiser
     [Injectable]
     public interface ISynthesiser
     {
-        void SynthesisAndWriteTypes(IEnumerable<ITypeDefinition> typeModels);
+        void SynthesisAndWriteTypes(IEnumerable<ITypeModel> models);
     }
 
     public class Synthesiser : ISynthesiser
@@ -25,27 +24,14 @@ namespace TypeSharpGenLauncher.Core.Synthesiser
             _declarationFileSynthesiser = declarationFileSynthesiser;
         }
 
-        public void SynthesisAndWriteTypes(IEnumerable<ITypeDefinition> typeModels)
+        public void SynthesisAndWriteTypes(IEnumerable<ITypeModel> models)
         {
-            var declarations = typeModels
-                .DistinctBy(model => model.Type)
+            var declarations = models
                 .GroupBy(model => model.OutputLocation)
                 .Select(group => new DeclarationFile(group.Key, group));
 
-            // TODO: Split these into a seperate packing step to move logic out of synthesis
-            var lookUp = typeModels
-                .DistinctBy(model => model.Type)
-                .IndexBy(model => model.Type);
-
-            var declarationFileLookup = typeModels
-                .DistinctBy(model => model.Type)
-                .ToDictionary(
-                    model => model.Type, 
-                    model => declarations.Single(file => file.Types.Select(type => type.Type).Contains(model.Type))
-                );
-
             foreach (var declaration in declarations)
-                _declarationFileSynthesiser.Synthesise(declaration, lookUp, declarationFileLookup);
+                _declarationFileSynthesiser.Synthesise(declaration, declarations);
         }
     }
 }
