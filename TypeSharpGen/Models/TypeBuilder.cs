@@ -8,6 +8,36 @@ using EphemeralEx.Extensions;
 
 namespace TypeSharpGen.Builder
 {
+    public interface IMethodModifier
+    {
+        MethodDefinition Apply(MethodDefinition method);
+    }
+
+    public class OverideReturnType : IMethodModifier
+    {
+        private Type _type;
+
+        public OverideReturnType(Type type)
+        {
+            _type = type;
+        }
+
+        public MethodDefinition Apply(MethodDefinition method)
+        {
+            method.OverrideReturnType(_type);
+            return method;
+        }
+    }
+
+    public class OverideReturnType<T> : IMethodModifier
+    {
+        public MethodDefinition Apply(MethodDefinition method)
+        {
+            method.OverrideReturnType(typeof(T));
+            return method;
+        }
+    }
+
     public record TypeBuilder(Type Type, string Location) : ITypeDefinition
     {
         string? _name;
@@ -59,14 +89,19 @@ namespace TypeSharpGen.Builder
             return this;
         }
 
-        public TypeBuilder AddMethod(string methodName)
+        public TypeBuilder AddMethod(string methodName, params IMethodModifier[] modifiers)
         {
-            InnerAddMethod(AllMethods.Single(method => method.Name == methodName));
+            InnerAddMethod(AllMethods.Single(method => method.Name == methodName), modifiers);
             return this;
         }
 
-        private void InnerAddMethod(MethodInfo methodInfo)
-            => _declaredMethods.Add(new MethodDefinition(methodInfo));
+        private void InnerAddMethod(MethodInfo methodInfo, IMethodModifier[] modifiers)
+            => _declaredMethods
+                .Add(
+                    new MethodDefinition(methodInfo)
+                        .ChainCall(modifiers, (definition, modifier) => modifier.Apply(definition))
+                );
+
 
         private IEnumerable<PropertyInfo> AllProperties
             => Type.GetProperties();

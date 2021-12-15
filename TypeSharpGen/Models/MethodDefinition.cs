@@ -47,7 +47,8 @@ namespace TypeSharpGen.Builder
     {
         private readonly MethodInfo _methodInfo;
 
-        public Type ReturnType => _methodInfo.ReturnType;
+        private Type? _overrideReturnType = null;
+        public Type ReturnType => _overrideReturnType ?? _methodInfo.ReturnType;
 
         public string Name => _methodInfo.Name;
 
@@ -59,6 +60,11 @@ namespace TypeSharpGen.Builder
         public MethodDefinition(MethodInfo methodInfo)
         {
             _methodInfo = methodInfo;
+        }
+
+        public void OverrideReturnType(Type type)
+        {
+            _overrideReturnType = type;
         }
     }
 }
