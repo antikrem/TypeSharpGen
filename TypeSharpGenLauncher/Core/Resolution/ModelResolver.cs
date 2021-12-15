@@ -68,6 +68,9 @@ namespace TypeSharpGenLauncher.Core.Resolution
             else if (_typeScriptBuiltInTypes.BuiltInTypes.Contains(type))
                 return new DefaultImplementation(_typeScriptBuiltInTypes.BuiltInTypeSymbols[type]);
 
+            else if (_typeReducer.IsReducibleTaskType(type))
+                return new TaskTypeModel(ResolveDerivedSymbol(_typeReducer.Reduce(type, 1).Single(), lookup));
+
             else if (_typeReducer.IsReducibleListType(type))
                 return new ArrayTypeModel(ResolveDerivedSymbol(_typeReducer.Reduce(type, 1).Single(), lookup));
 
@@ -83,6 +86,5 @@ namespace TypeSharpGenLauncher.Core.Resolution
 
             else throw new Exception();
         }
-
     }
 }

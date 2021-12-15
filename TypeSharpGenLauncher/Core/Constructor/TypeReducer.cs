@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 using EphemeralEx.Extensions;
 using EphemeralEx.Injection;
@@ -13,6 +14,7 @@ namespace TypeSharpGenLauncher.Core.Constructor
     {
         bool IsReducibleListType(Type type);
         bool IsReducibleDictionaryType(Type type);
+        bool IsReducibleTaskType(Type type);
 
         IEnumerable<Type> Reduce(Type type, int by = int.MaxValue);
     }
@@ -23,6 +25,8 @@ namespace TypeSharpGenLauncher.Core.Constructor
         {
             if (by <= 0)
                 return type.ToEnumerable();
+            else if (IsReducibleTaskType(type))
+                return Reduce(type.GetGenericArguments().Single(), by - 1);
             else if (type.IsArray)
                 return Reduce(type.GetElementType()!, by - 1);
             else if (IsReducibleListType(type))
@@ -41,6 +45,9 @@ namespace TypeSharpGenLauncher.Core.Constructor
 
         public bool IsReducibleDictionaryType(Type type)
             => type.IsGenericType && DictionaryTypes.Contains(type.GetGenericTypeDefinition());
+
+        public bool IsReducibleTaskType(Type type)
+            => type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Task<>);
 
         private static IEnumerable<Type> IterableTypes
         {
