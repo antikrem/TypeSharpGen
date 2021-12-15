@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+
+using EphemeralEx.Extensions;
 using EphemeralEx.Injection;
 
 using TypeSharpGen.Builder;
@@ -40,7 +42,7 @@ namespace TypeSharpGenLauncher.Core.Constructor
             }
             while (newlyResolved.Count > 0);
 
-            return resolvedDefinition;
+            return resolvedDefinition.DistinctBy(definition => definition.Type);
         }
 
         private IEnumerable<ITypeDefinition> ResolutionPass(IReadOnlyList<ITypeDefinition> models)
