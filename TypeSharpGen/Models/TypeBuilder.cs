@@ -43,22 +43,25 @@ namespace TypeSharpGen.Builder
             return this;
         }
 
-        public TypeBuilder AddProperty(PropertyInfo propertyInfo)
+        public TypeBuilder AddProperty(PropertyInfo propertyInfo, params IPropertyModifier[] modifiers)
         {
             if (AllProperties.None(property => property.Name == propertyInfo.Name))
                 throw new Exception(); //TODO
-            InnerAddProperty(propertyInfo);
+            InnerAddProperty(propertyInfo, modifiers);
             return this;
         }
 
-        public TypeBuilder AddProperty(string propertyName)
+        public TypeBuilder AddProperty(string propertyName, params IPropertyModifier[] modifiers)
         {
-            InnerAddProperty(AllProperties.Single(property => property.Name == propertyName));
+            InnerAddProperty(AllProperties.Single(property => property.Name == propertyName), modifiers);
             return this;
         }
 
-        private void InnerAddProperty(PropertyInfo propertyInfo)
-            => _declaredProperties.Add(new PropertyDefinition(propertyInfo));
+        private void InnerAddProperty(PropertyInfo propertyInfo, IEnumerable<IPropertyModifier> modifiers)
+            => _declaredProperties.Add(
+                    new PropertyDefinition(propertyInfo)
+                        .ChainCall(modifiers, (definition, modifier) => modifier.Apply(definition))
+                );
 
         public TypeBuilder AddMethod(MethodInfo methodInfo)
         {
@@ -74,7 +77,7 @@ namespace TypeSharpGen.Builder
             return this;
         }
 
-        private void InnerAddMethod(MethodInfo methodInfo, IMethodModifier[] modifiers)
+        private void InnerAddMethod(MethodInfo methodInfo, IEnumerable<IMethodModifier> modifiers)
             => _declaredMethods
                 .Add(
                     new MethodDefinition(methodInfo)
