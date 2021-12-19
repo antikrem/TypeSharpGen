@@ -7,7 +7,7 @@
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>typesharpgenerate</ToolCommandName>
 
-    <Version>0.0.12</Version>
+    <Version>0.0.13</Version>
     <Company>Ephemeral Softworks</Company>
     <Authors>Chally</Authors>
     <Company>Ephemeral Softworks</Company>
