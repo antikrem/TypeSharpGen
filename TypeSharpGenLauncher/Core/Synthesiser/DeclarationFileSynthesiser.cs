@@ -70,6 +70,7 @@ namespace TypeSharpGenLauncher.Core.Synthesiser
         private string SynthesiseImportPath(DeclarationFile target, DeclarationFile importSource)
             => Path.GetRelativePath(target.Location, importSource.Location)
                 .Substring(1)
+                .Replace(".ts", "")
                 .Replace("\\", "/");
 
         private IEnumerable<string> SynthesiseClassParts(ITypeModel model)
