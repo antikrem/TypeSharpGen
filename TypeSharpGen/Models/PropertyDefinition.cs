@@ -17,11 +17,17 @@ namespace TypeSharpGen.Builder
 
         public Type Type => _propertyInfo.PropertyType;
 
-        public string Name => _propertyInfo.Name;
+        private string? _overrideName = null;
+        public string Name => _overrideName ?? _propertyInfo.Name;
 
         public PropertyDefinition(PropertyInfo propertyInfo)
         {
             _propertyInfo = propertyInfo;
+        }
+
+        public void OverrideName(string name)
+        {
+            _overrideName = name;
         }
     }
 }
