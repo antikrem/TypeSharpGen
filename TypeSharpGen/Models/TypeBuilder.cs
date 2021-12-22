@@ -63,7 +63,7 @@ namespace TypeSharpGen.Builder
                         .ChainCall(modifiers, (definition, modifier) => modifier.Apply(definition))
                 );
 
-        public TypeBuilder AddMethod(MethodInfo methodInfo)
+        public TypeBuilder AddMethod(MethodInfo methodInfo, params IMethodModifier[] modifiers)
         {
             if (AllMethods.None(property => property.Name == methodInfo.Name))
                 throw new Exception(); //TODO
