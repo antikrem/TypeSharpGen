@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 using EphemeralEx.Injection;
 
@@ -27,7 +28,8 @@ namespace TypeSharpGenLauncher.Core.Constructor
                 { typeof(long), "number" },
                 { typeof(float), "number" },
                 { typeof(double), "number" },
-                { typeof(object), "any" }
+                { typeof(object), "any" },
+                { typeof(Task), "Promise<void>" }
             };
     }
 }
