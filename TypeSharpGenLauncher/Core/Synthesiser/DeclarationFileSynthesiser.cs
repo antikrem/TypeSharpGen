@@ -73,7 +73,7 @@ namespace TypeSharpGenLauncher.Core.Synthesiser
                 .Replace(".ts", "")
                 .Replace("\\", "/");
 
-        private IEnumerable<string> SynthesiseClassParts(ITypeModel model)
+        private static IEnumerable<string> SynthesiseClassParts(ITypeModel model)
         {
             yield return $"export interface {model.Symbol} {{";
 
