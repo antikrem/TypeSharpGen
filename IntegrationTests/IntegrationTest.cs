@@ -27,7 +27,7 @@ namespace IntegrationTests
         [SetUp]
         public void SetUp()
         {
-            _endpoint = new(this);
+            _endpoint = new();
         }
 
         [Test]
@@ -87,12 +87,6 @@ namespace IntegrationTests
         private class MemoryPersistenceEndpoint : IEmisionEndpoint
         {
             private List<File> _files = new();
-            private IntegrationTest _test;
-
-            public MemoryPersistenceEndpoint(IntegrationTest test)
-            {
-                _test = test;
-            }
 
             public void Write(string location, string body)
             {
