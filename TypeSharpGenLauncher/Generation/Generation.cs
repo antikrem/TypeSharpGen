@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
-using EphemeralEx.Extensions;
 using EphemeralEx.Injection;
 
 using TypeSharpGen.Builder;
@@ -25,14 +23,14 @@ namespace TypeSharpGenLauncher.Generation
     {
         private readonly ITypesLoader _typesLoader;
         private readonly IGenerationSpecificationFinder _generationSpecificationFinder;
-        private readonly IDependentDefinitionMaterialisation _dependentDefinitionMaterialisation;
+        private readonly ITypeModelConstructor _dependentDefinitionMaterialisation;
         private readonly IModelResolver _modelResolver;
         private readonly ISynthesiser _synthesiser;
 
         public Generation(
             ITypesLoader typesLoader,
             IGenerationSpecificationFinder generationSpecificationFinder,
-            IDependentDefinitionMaterialisation dependentDefinitionMaterialisation,
+            ITypeModelConstructor dependentDefinitionMaterialisation,
             IModelResolver modelResolver,
             ISynthesiser synthesiser)
         {

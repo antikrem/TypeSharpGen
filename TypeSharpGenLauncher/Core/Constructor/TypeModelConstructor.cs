@@ -11,12 +11,12 @@ using TypeSharpGenLauncher.Loading;
 namespace TypeSharpGenLauncher.Core.Constructor
 {
     [Injectable]
-    public interface IDependentDefinitionMaterialisation
+    public interface ITypeModelConstructor
     {
         IEnumerable<ITypeDefinition> MaterialiseWithDependencies(IEnumerable<ITypeDefinition> typeDefinition);
     }
 
-    public class TypeModelConstructor : IDependentDefinitionMaterialisation
+    public class TypeModelConstructor : ITypeModelConstructor
     {
         private readonly ITypeScriptBuiltInTypes _typeScriptBuiltInTypes;
         private readonly ITypeReducer _typeReducer;
