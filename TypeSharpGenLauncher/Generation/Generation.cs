@@ -52,7 +52,7 @@ namespace TypeSharpGenLauncher.Generation
 
         private IEnumerable<ITypeDefinition> GetAllDefinitions()
         {
-            var types = _typesLoader.AllTypes();
+            var types = _typesLoader.AllTypes;
 
             var declarations = _generationSpecificationFinder
                 .FilterSpecifications(types)

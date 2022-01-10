@@ -12,7 +12,7 @@ namespace TypeSharpGenLauncher.Loading
     [Injectable]
     public interface ITypesLoader
     {
-        IEnumerable<Type> AllTypes();
+        IEnumerable<Type> AllTypes { get; }
     }
 
     public class TypesLoader : ITypesLoader
@@ -26,7 +26,7 @@ namespace TypeSharpGenLauncher.Loading
             _assemblyLoader = assemblyLoader;
         }
 
-        public IEnumerable<Type> AllTypes()
+        public IEnumerable<Type> AllTypes
             => _projectFolders
                 .BinaryDirectories
                 .First()
