@@ -22,9 +22,7 @@ namespace IntegrationTests
     {
         private MemoryPersistenceEndpoint _endpoint;
 
-        public string TestName => GetType().Name;
-
-        public override string OutputRoot => $"Output";
+        public override string OutputRoot => $"";
 
         [SetUp]
         public void SetUp()
@@ -45,7 +43,7 @@ namespace IntegrationTests
             output.Should().Equal(expected);
         }
 
-        private static IEnumerable<File> ToFileSequence(EphemeralEx.FileSystem.Directory root) 
+        private static IEnumerable<File> ToFileSequence(EphemeralEx.FileSystem.Directory root)
             => root
                 .TraverseTree(directory => directory.ChildDirectories)
                 .SelectMany(directory => directory.ChildFiles)
@@ -56,7 +54,7 @@ namespace IntegrationTests
             var typeReducer = new TypeReducer();
             var typeScriptBuiltInTypes = new TypeScriptBuiltInTypes();
             var projectFolders = Substitute.For<IProjectFolders>();
-            projectFolders.ProjectRoot.Returns(EphemeralEx.FileSystem.Directory.Create(TestName));
+            projectFolders.ProjectRootPath.Returns("");
 
             var typesLoader = Substitute.For<ITypesLoader>();
             typesLoader.AllTypes.Returns(GetType().Assembly.Types());
@@ -68,7 +66,7 @@ namespace IntegrationTests
 
             var typeModelConstructor = new TypeModelConstructor(
                 typeScriptBuiltInTypes,
-                typeReducer, 
+                typeReducer,
                 Substitute.For<IAssemblyLoader>()
             );
 
@@ -80,6 +78,8 @@ namespace IntegrationTests
 
             return new Generation(typesLoader, generationSpecificationFinder, typeModelConstructor, modelResolver, synthesiser);
         }
+
+        private string TestName => GetType().Name;
 
         private record File(string Name, string Content);
 
@@ -96,9 +96,7 @@ namespace IntegrationTests
 
             public void Write(string location, string body)
             {
-                var exclusion = Path.Join(System.IO.Directory.GetCurrentDirectory(), _test.TestName, _test.OutputRoot, "\\");
-
-                _files.Add(new File(location.Remove(0, 0), body));
+                _files.Add(new File(location[1..], body));
             }
 
             public IEnumerable<File> Files => _files;
