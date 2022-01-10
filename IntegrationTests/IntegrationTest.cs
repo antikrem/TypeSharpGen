@@ -98,7 +98,7 @@ namespace IntegrationTests
             {
                 var exclusion = Path.Join(System.IO.Directory.GetCurrentDirectory(), _test.TestName, _test.OutputRoot, "\\");
 
-                _files.Add(new File(location.Split(exclusion)[1], body));
+                _files.Add(new File(location.Remove(0, 0), body));
             }
 
             public IEnumerable<File> Files => _files;
