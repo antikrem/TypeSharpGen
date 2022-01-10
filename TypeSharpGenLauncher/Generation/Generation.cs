@@ -24,12 +24,14 @@ namespace TypeSharpGenLauncher.Generation
     public class Generation : IGeneration
     {
         private readonly ITypesLoader _typesLoader;
+        private readonly IGenerationSpecificationFinder _generationSpecificationFinder;
         private readonly IDependentDefinitionMaterialisation _dependentDefinitionMaterialisation;
         private readonly IModelResolver _modelResolver;
         private readonly ISynthesiser _synthesiser;
 
         public Generation(
-            ITypesLoader typesLoader, 
+            ITypesLoader typesLoader,
+            IGenerationSpecificationFinder generationSpecificationFinder,
             IDependentDefinitionMaterialisation dependentDefinitionMaterialisation,
             IModelResolver modelResolver,
             ISynthesiser synthesiser)
@@ -38,6 +40,7 @@ namespace TypeSharpGenLauncher.Generation
             _dependentDefinitionMaterialisation = dependentDefinitionMaterialisation;
             _modelResolver = modelResolver;
             _synthesiser = synthesiser;
+            _generationSpecificationFinder = generationSpecificationFinder;
         }
 
         public void Generate()
@@ -53,20 +56,16 @@ namespace TypeSharpGenLauncher.Generation
         {
             var types = _typesLoader.AllTypes();
 
-            var declarations = types
-                .Where(type => type.Inherits<GenerationSpecification>())
-                .Where(type => typeof(GenerationSpecification) != type)
+            var declarations = _generationSpecificationFinder
+                .FilterSpecifications(types)
                 .SelectMany(GetTypeDefinitions);
 
             return _dependentDefinitionMaterialisation.MaterialiseWithDependencies(declarations);
         }
 
-        private IEnumerable<ITypeDefinition> GetTypeDefinitions(Type specType)
-        {
-            var spec = (GenerationSpecification)Activator.CreateInstance(specType);
-            return spec
+        private IEnumerable<ITypeDefinition> GetTypeDefinitions(GenerationSpecification spec) 
+            => spec
                 .TypeDeclaractions()
                 .Select(declaration => new ShiftedTypeDefinition(declaration, spec.OutputRoot));
-        }
     }
 }
