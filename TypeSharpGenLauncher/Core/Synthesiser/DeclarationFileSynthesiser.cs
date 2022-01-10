@@ -32,7 +32,7 @@ namespace TypeSharpGenLauncher.Core.Synthesiser
         public void Synthesise(DeclarationFile declarationFile, IEnumerable<DeclarationFile> declarationFiles)
         {
             var text = InnerSynthesise(declarationFile, declarationFiles);
-            _emmisionEndpoints.ForEach(endpoint => endpoint.Write($"{_projectFolders.ProjectRoot.Path}\\{declarationFile.Location}", text));
+            _emmisionEndpoints.ForEach(endpoint => endpoint.Write($"{_projectFolders.ProjectRootPath}\\{declarationFile.Location}", text));
         }
 
         private string InnerSynthesise(DeclarationFile declarationFile, IEnumerable<DeclarationFile> declarationFiles)

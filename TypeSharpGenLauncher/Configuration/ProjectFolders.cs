@@ -12,6 +12,8 @@ namespace TypeSharpGenLauncher.Configuration
     {
         Directory ProjectRoot { get; }
 
+        string ProjectRootPath { get; }
+
         IEnumerable<Directory> BinaryDirectories { get; }
     }
 
@@ -26,6 +28,8 @@ namespace TypeSharpGenLauncher.Configuration
 
         public Directory ProjectRoot
                 => (Directory)IFile.Create(_consoleConfiguration.ProjectFolder);
+
+        public string ProjectRootPath => ProjectRoot.Path;
 
         public IEnumerable<Directory> BinaryDirectories
                 => _consoleConfiguration.BinaryFolders.Select(path => (Directory)IFile.Create(path));
