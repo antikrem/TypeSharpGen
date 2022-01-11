@@ -23,6 +23,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="ControllerTest\Expected\ViewModel.ts">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="ControllerTest\Expected\Controller.ts">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="ImportTest\Expected\ImportTestConsumerClass.ts">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
