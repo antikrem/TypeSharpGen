@@ -3,7 +3,7 @@
 using TypeSharpGen.Builder;
 
 
-namespace IntegrationTests.PropertiesTest
+namespace IntegrationTests.SimpleGeneration
 {
     public class SimpleGenerationTestClass
     {
