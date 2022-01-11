@@ -40,7 +40,7 @@ namespace IntegrationTests
             var expected = ToFileSequence(EphemeralEx.FileSystem.Directory.Create($"{TestName}/Expected"));
             var output = _endpoint.Files;
 
-            output.Should().Equal(expected);
+            output.Should().BeEquivalentTo(expected);
         }
 
         private static IEnumerable<File> ToFileSequence(EphemeralEx.FileSystem.Directory root)
