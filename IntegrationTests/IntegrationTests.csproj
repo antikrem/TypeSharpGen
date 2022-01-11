@@ -29,6 +29,15 @@
     <None Update="ImportTest\Expected\ImportTestDependencyClass.ts">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="TriangleImportTest\Expected\TriangleImportTestClassC.ts">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TriangleImportTest\Expected\TriangleImportTestClassB.ts">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TriangleImportTest\Expected\TriangleImportTestClassA.ts">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="SimpleGenerationTest\Expected\SimpleGenerationTest.ts">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
