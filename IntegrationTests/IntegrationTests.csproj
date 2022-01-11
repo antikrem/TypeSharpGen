@@ -5,7 +5,7 @@
 
     <IsPackable>false</IsPackable>
 
-    <AppDesignerFolder>PropertiesTest</AppDesignerFolder>
+    <AppDesignerFolder>SimpleGenerationTest</AppDesignerFolder>
   </PropertyGroup>
 
   <ItemGroup>
@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="PropertiesTest\Expected\PropertyTestClass.ts">
+    <None Update="SimpleGenerationTest\Expected\SimpleGenerationTest.ts">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
