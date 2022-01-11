@@ -23,6 +23,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="ImportTest\Expected\ImportTestConsumerClass.ts">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="ImportTest\Expected\ImportTestDependencyClass.ts">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="SimpleGenerationTest\Expected\SimpleGenerationTest.ts">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
