@@ -20,7 +20,7 @@ Generate typescript from C# with simple syntax and a non-opinionated, extendable
 4. Run the tool with `typesharpgenerate [Project Root] -n [Binary Folder]`
 
 ## Example
-A useful application is to create definitions for your client side application:
+A useful application is to create type definitions for your client side application in ASP.NET:
 
 #### C# file
 ```c#
