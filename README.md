@@ -6,6 +6,7 @@ Generate typescript from C# with simple syntax and a non-opinionated, extendable
 
 ## Features
 
+* Streamlined usage - No config files or predefined attributes, all behaviour is clearly defined in one place.
 * Customisable generation - Simply implement `GenerationSpecification` as many times as needed to declare how and what is generated.
 * Implicit dependent type generation - Missing types required for a valid generation will be implicitly picked up and emmitted.
 * Imports - All dependencies for a type will be automically detected, even between generation specifications and imported.
