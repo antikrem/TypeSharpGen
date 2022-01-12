@@ -39,7 +39,7 @@ public class Controller
     public ViewModel Action(int parameter) => new ViewModel();
 }
     
-public class ControllerTest : GenerationSpecification
+public class ControllerAndTypesGenerator : GenerationSpecification
 {
     public override string OutputRoot => "Typings";
 
