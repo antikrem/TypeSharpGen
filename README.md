@@ -4,6 +4,12 @@
 
 Generate typescript from C# with simple syntax and a non-opinionated, extendable design. Loosely inspired by `TypeGen`, this project offers more features such as method declarations as well as more low level customization.
 
+## Features
+
+* Customisable generation - Simply implement `GenerationSpecification` as many times as needed to declare how and what is generated.
+* Implicit dependent type generation - Types required for a valid generation will be implicitly picked up and emmitted.
+* Imports - All dependencies for a type will be automically detected, even between generation specifications and imported.
+
 ## Packages
 
 * [NuGet](https://www.nuget.org/packages/TypeSharpGen/)
