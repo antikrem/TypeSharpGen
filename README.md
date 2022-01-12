@@ -82,4 +82,4 @@ export interface Controller {
 }
 ```
 
-With some extra work, its possible to automate the selecting of  (TODO - pull the reflective generation specification from TagH to here).
+With some extra work, its possible to automate the declaration of controllers (TODO - pull the reflective generation specification from TagH to here).
