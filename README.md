@@ -2,14 +2,14 @@
 
 **C# to TypeScript Declaration Generator**
 
-Generate typescript from C# with simple syntax and a non-opinionated, extendable design. Loosely inspired by `TypeGen`, this project offers more features such as method declarations as well as more low level customization.
+Generate typescript declarations from C# with simple syntax and a non-opinionated, extendable design. Loosely inspired by `TypeGen`, this project offers more features such as method declarations as well as more low level customization.
 
 ## Features
 
 * Streamlined usage - No config files or predefined attributes, all behaviour is clearly defined in `GenerationSpecification`s.
 * Customisable generation - Simply implement `GenerationSpecification` as many times as needed to declare how and what is generated.
 * Implicit dependent type generation - Missing types required for a valid generation will be implicitly picked up and emmitted.
-* Imports - All dependencies for a type will be automically detected, even between generation specifications and imported.
+* Imports - All dependencies for a type will be automically detected, even between generation specifications, and imported.
 
 ## Packages
 
